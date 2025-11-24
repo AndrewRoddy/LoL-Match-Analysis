@@ -1,0 +1,5 @@
+{
+    // Makes tabs two spaces which is proper R formatting
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+}
