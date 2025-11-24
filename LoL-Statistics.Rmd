@@ -15,9 +15,11 @@ cat("There are", col_count, "columns.\n")
 names <- colnames(team_match)
 print(names)
 
-for (i in 1:100) {
-  print(team_match$BlueWin[i])
+# Makes sure all numbers are proper
+for (i in 1:row_count) {
+  total <- (1 - (team_match$BlueWin[i] + team_match$RedWin[i]))
 }
+print(total)
 ```
 
 

@@ -29,3 +29,6 @@ The lead up to each test performed must have a narrative of what is going to be 
 Conclusions to be derived.
 
 Presentation can be done in R (Quarto Presentatio) but can be done in any software.
+
+⭐ Make sure the statistics are correct
+⭐ Make it look nice
