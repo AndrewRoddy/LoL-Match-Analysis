@@ -32,3 +32,10 @@ Presentation can be done in R (Quarto Presentatio) but can be done in any softwa
 
 ⭐ Make sure the statistics are correct
 ⭐ Make it look nice
+
+
+# Possible Tests
+2 way ANOVA on predicting damage based on role(Top, Mid, Jungle, Bot) and Keystone or Champion and Keystone
+Logistic Regression on gold gained and damage dealt/taken to predict win or loss glm
+Chi^2 Test of Independence on champions and winrate (Make our own meta predictor)?
+Could do some kind of simple machine learning to predict win loss on some combination of stats?
