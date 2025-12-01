@@ -5,23 +5,34 @@ date: "2025-11-24"
 output: pdf_document
 ---
 
-### TeamMatchTbl.csv
-```{r cars}
-team_match <- read.csv("data/MatchStatsTbl.csv")
-row_count <- nrow(team_match)
-col_count <- ncol(team_match)
+### MatchStatsTbl.csv
+
+Import code and print off column and row count
+```{r import}
+match_stats <- read.csv("data/MatchStatsTbl.csv")
+row_count <- nrow(match_stats)
+col_count <- ncol(match_stats)
 cat("There are", row_count, "rows.\n")
 cat("There are", col_count, "columns.\n")
-names <- colnames(team_match)
-print(names)
-
-# Sort based on win or lose
-# df.sort_values(
-# Makes sure all numbers are proper
-for (i in 1:row_count) {
-  total <- team_match$Win[i]
-  print(total)
-}
 ```
 
+```{r clean}
+names <- colnames(match_stats)
+print(names)
+```
+
+```{r sort and cycle}
+library(ggplot2)
+
+# create data
+# data <- data.frame(xValue,yValue)
+
+# Plot
+ggplot(match_stats, aes(x = TotalGold, y = DmgDealt)) + geom_line()
+# Makes sure all numbers are proper
+# for (i in 1:row_count) {
+#   total <- match_stats$Win[i]
+#   print(total)
+# }
+```
 
