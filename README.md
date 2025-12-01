@@ -35,8 +35,8 @@ Presentation can be done in R (Quarto Presentatio) but can be done in any softwa
 
 
 # Possible Tests
-2 way ANOVA on predicting damage based on role(Top, Mid, Jungle, Bot) and Keystone or Champion and Keystone (Does taking X keystone over Y increase damage on average)
-Logistic Regression on gold gained and damage dealt/taken to predict win or loss glm
-Chi^2 Test of Independence on champions and winrate (Make our own meta predictor)?
-Could do some kind of simple machine learning to predict win loss on some combination of stats?
-Effect of Mastery Points on kills or win/loss?
+- 2 way ANOVA on predicting damage based on role(Top, Mid, Jungle, Bot) and Keystone or Champion and Keystone (Does taking X keystone over Y increase damage on average)
+- Logistic Regression on gold gained and damage dealt/taken to predict win or loss glm
+- Chi^2 Test of Independence on champions and winrate (Make our own meta predictor)?
+- Could do some kind of simple machine learning to predict win loss on some combination of stats?
+- Effect of Mastery Points on kills or win/loss?
