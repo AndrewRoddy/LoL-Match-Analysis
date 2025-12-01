@@ -7,7 +7,7 @@ output: pdf_document
 
 ### TeamMatchTbl.csv
 ```{r cars}
-team_match <- read.csv("data/TeamMatchTbl.csv")
+team_match <- read.csv("data/MatchStatsTbl.csv")
 row_count <- nrow(team_match)
 col_count <- ncol(team_match)
 cat("There are", row_count, "rows.\n")
@@ -15,11 +15,13 @@ cat("There are", col_count, "columns.\n")
 names <- colnames(team_match)
 print(names)
 
+# Sort based on win or lose
+# df.sort_values(
 # Makes sure all numbers are proper
 for (i in 1:row_count) {
-  total <- (1 - (team_match$BlueWin[i] + team_match$RedWin[i]))
+  total <- team_match$Win[i]
+  print(total)
 }
-print(total)
 ```
 
 
