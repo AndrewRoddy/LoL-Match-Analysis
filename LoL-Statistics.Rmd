@@ -27,7 +27,6 @@ cat("There are", col_count2, "columns.\n")
 # Removes unimportant columns of data
 match_stats[, c(
   "item1", "item2", "item3", "item4", "item5", "item6",
-  "PrimaryKeyStone",
   "PrimarySlot1", "PrimarySlot2", "PrimarySlot3",
   "SecondarySlot1", "SecondarySlot2",
   "SummonerSpell1", "SummonerSpell2"
@@ -40,6 +39,12 @@ print(names)
 Multiple regression to test if 
 ```{r sort and cycle}
 
+# install .packages("ggplot2")
+library(ggplot2)
+library(scales)
+# install .packages("car")
+library(car)
+
 # make simple regression model
 multiple_regression <- lm(DmgDealt ~
     DmgTaken + TotalGold + MinionsKilled + TurretDmgDealt +
@@ -49,13 +54,12 @@ multiple_regression <- lm(DmgDealt ~
 # Print off if this matters or not
 summary(multiple_regression)
 
-# Loads in the car package
-library(car)
-
 # Creates the variable plots
 # #000000 point color
 # 0.01 : 1 percent opacity
-avPlots(multiple_regression, col = alpha("#000000", 0.02))
+
+# Commented out for now
+# avPlots(multiple_regression, col = alpha("#000000", 0.02))
 ```
 
 ```{r 2WayANOVA}
