@@ -17,22 +17,40 @@ cat("There are", col_count, "columns.\n")
 ```
 
 ```{r clean}
+
+# Removes unimportant columns of data
+match_stats[, c(
+  "item1", "item2", "item3", "item4", "item5", "item6",
+  "PrimaryKeyStone",
+  "PrimarySlot1", "PrimarySlot2", "PrimarySlot3",
+  "SecondarySlot1", "SecondarySlot2",
+  "SummonerSpell1", "SummonerSpell2"
+)] <- list(NULL)
+
 names <- colnames(match_stats)
 print(names)
 ```
 
+Multiple regression to test if 
 ```{r sort and cycle}
-library(ggplot2)
 
-# create data
-# data <- data.frame(xValue,yValue)
+# make simple regression model
+multiple_regression <- lm(DmgDealt ~
+    DmgTaken + TotalGold + MinionsKilled + TurretDmgDealt +
+      CurrentMasteryPoints,
+  data = match_stats
+)
+# Print off if this matters or not
+summary(multiple_regression)
 
-# Plot
-ggplot(match_stats, aes(x = TotalGold, y = DmgDealt)) + geom_line()
-# Makes sure all numbers are proper
-# for (i in 1:row_count) {
-#   total <- match_stats$Win[i]
-#   print(total)
-# }
+# Loads in the car package
+library(car)
+
+# Creates the variable plots
+# #000000 point color
+# 0.01 : 1 percent opacity
+avPlots(multiple_regression, col = alpha("#000000", 0.02))
 ```
+
+
 
