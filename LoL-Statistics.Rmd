@@ -53,11 +53,11 @@ multiple_regression <- lm(DmgDealt ~
 summary(multiple_regression)
 
 # Creates the variable plots
-# #000000 point color
-# 0.01 : 1 percent opacity
+ #000000 point color
+ #0.01 : 1 percent opacity
 
 # Commented out for now
-avPlots(multiple_regression, col = alpha("#000000", 0.02))
+ avPlots(multiple_regression, col = alpha("#000000", 0.02))
 ```
 
 ```{r 2WayANOVA}
