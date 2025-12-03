@@ -39,10 +39,8 @@ print(names)
 Multiple regression to test if 
 ```{r sort and cycle}
 
-# install .packages("ggplot2")
 library(ggplot2)
 library(scales)
-# install .packages("car")
 library(car)
 
 # make simple regression model
