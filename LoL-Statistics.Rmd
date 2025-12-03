@@ -14,6 +14,12 @@ row_count <- nrow(match_stats)
 col_count <- ncol(match_stats)
 cat("There are", row_count, "rows.\n")
 cat("There are", col_count, "columns.\n")
+
+team_stats <- read.csv("data/TeamMatchTbl.csv")
+row_count2 <- nrow(team_stats)
+col_count2 <- ncol(team_stats)
+cat("There are", row_count2, "rows.\n")
+cat("There are", col_count2, "columns.\n")
 ```
 
 ```{r clean}
@@ -81,4 +87,28 @@ KeyStoneStats
 LaneStats = TukeyHSD(model, "Lane")
 LaneStats
 #NEED TO DO: GRAPH AND VISULIZE DATA PROPERLY
+```
+
+```{r Team Logistic Regression}
+#Logistic Regression on a bunch of team Data
+blueBarons = team_stats$BlueBaronKills
+blueDragons = team_stats$BlueDragonKills
+blueHeralds = team_stats$BlueRiftHeraldKills
+blueKills = team_stats$BlueKills
+
+model = glm(BlueWin ~ blueBarons + blueDragons + blueHeralds + blueKills, data=team_stats, family=binomial)
+summary(model)
+#Results give us a logit function, need to convert to individual winrate multipliers
+oddMults = exp(coef(model)[-1])
+oddMults
+#Probability Conversion = Mults/1+mult Can build predictor model off of this
+winrate = 0.5 #50% chance of winning a game
+barons = -2
+dragons = -1
+heralds = 1
+kills = 5
+odds = winrate / (1 - winrate) * oddMults["blueBarons"]^barons * oddMults["blueDragons"]^dragons * oddMults["blueHeralds"]^heralds * oddMults["blueKills"]^kills
+
+probability = odds/(1+odds)
+probability
 ```
