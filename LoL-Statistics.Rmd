@@ -80,54 +80,75 @@ avPlots(multiple_regression, col = alpha("#000000", 0.02))
 #8437 - GraspOfTheUndying
 #8360 - UnsealedSpellbook
 #Remove outliers
-dmgDealt <- match_stats$DmgDealt
-Q1 <- quantile(dmgDealt, 0.25)
-Q3 <- quantile(dmgDealt, 0.75)
-IQR <- Q3 - Q1
+dmg_dealt <- match_stats$DmgDealt
+q1 <- quantile(dmg_dealt, 0.25)
+q3 <- quantile(dmg_dealt, 0.75)
+iqr <- q3 - q1
 
-lowerBound <- Q1 - 1.5 * IQR
-upperBound <- Q3 + 1.5 * IQR
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
 
-filtered <- match_stats[dmgDealt >= lowerBound & dmgDealt <= upperBound & match_stats$PrimaryKeyStone != '0' & match_stats$Lane != "NONE", ]
+filtered <- match_stats[
+  dmg_dealt >= lower_bound & dmg_dealt <= upper_bound &
+    match_stats$PrimaryKeyStone != "0" & match_stats$Lane != "NONE",
+]
 
-#2 Way ANOVA on Keystone and Role
-filtered$PrimaryKeyStone = factor(filtered$PrimaryKeyStone)
-filtered$Lane = factor(filtered$Lane)
-model = aov(DmgDealt ~ PrimaryKeyStone * Lane, data=filtered)
+# 2 Way ANOVA on Keystone and Role
+filtered$PrimaryKeyStone <- factor(filtered$PrimaryKeyStone)
+filtered$Lane <- factor(filtered$Lane)
+model <- aov(DmgDealt ~ PrimaryKeyStone * Lane, data = filtered)
 summary(model)
-#Results show a high F value meaning that KeyStone has a large effect on average damage even with the large amount of noise (random player variation still makes most of the difference)
-#P-Values all very low so all very signifigant
-#Residuals are very high, meaning that KeyStone and Lane are primarily not the biggest effects and most is left up to other factors(Likely player randomness and maybe gold earned)
+
+# Results show a high F value meaning that KeyStone has a large
+# effect on average damage even with the large amount of noise
+# (random player variation still makes most of the difference)
+
+# P-Values all very low so all very signifigant
+# Residuals are very high, meaning that KeyStone and
+# Lane are primarily not the biggest effects and
+# most is left up to other factors
+# (Likely player randomness and maybe gold earned)
 
 #Find Individual stats
-KeyStoneStats = TukeyHSD(model, "PrimaryKeyStone")
-KeyStoneStats
-LaneStats = TukeyHSD(model, "Lane")
-LaneStats
+key_stone_stats <- TukeyHSD(model, "PrimaryKeyStone")
+key_stone_stats
+lane_stats <- TukeyHSD(model, "Lane")
+lane_stats
 #NEED TO DO: GRAPH AND VISULIZE DATA PROPERLY
 ```
 
 ```{r Team Logistic Regression}
 #Logistic Regression on a bunch of team Data
-blueBarons = team_stats$BlueBaronKills
-blueDragons = team_stats$BlueDragonKills
-blueHeralds = team_stats$BlueRiftHeraldKills
-blueKills = team_stats$BlueKills
+blue_barons <- team_stats$BlueBaronKills
+blue_dragons <- team_stats$BlueDragonKills
+blue_heralds <- team_stats$BlueRiftHeraldKills
+blue_kills <- team_stats$BlueKills
 
-model = glm(BlueWin ~ blueBarons + blueDragons + blueHeralds + blueKills, data=team_stats, family=binomial)
+model <- glm(
+  BlueWin ~ blue_barons + blue_dragons + blue_heralds + blue_kills,
+  data = team_stats,
+  family = binomial
+)
+
 summary(model)
-#Results give us a logit function, need to convert to individual winrate multipliers
-oddMults = exp(coef(model)[-1])
-oddMults
-#Probability Conversion = Mults/1+mult Can build predictor model off of this
-winrate = 0.5 #50% chance of winning a game
-barons = -2
-dragons = -1
-heralds = 1
-kills = 5
-odds = winrate / (1 - winrate) * oddMults["blueBarons"]^barons * oddMults["blueDragons"]^dragons * oddMults["blueHeralds"]^heralds * oddMults["blueKills"]^kills
+# Results give us a legit function,
+# need to convert to individual winrate multipliers
+odd_mults <- exp(coef(model)[-1])
+odd_mults
 
-probability = odds/(1+odds)
+#Probability Conversion = Mults/1+mult Can build predictor model off of this
+winrate <- 0.5 #50% chance of winning a game
+barons <- -2
+dragons <- -1
+heralds <- 1
+kills <- 5
+odds <- winrate / (1 - winrate) *
+  odd_mults["blue_barons"]^barons *
+  odd_mults["blue_dragons"]^dragons *
+  odd_mults["blue_heralds"]^heralds *
+  odd_mults["blue_kills"]^kills
+
+probability <- odds / (1 + odds)
 probability
 ```
 
