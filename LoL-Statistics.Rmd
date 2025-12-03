@@ -39,10 +39,8 @@ print(names)
 Multiple regression to test if 
 ```{r sort and cycle}
 
-# install .packages("ggplot2")
 library(ggplot2)
 library(scales)
-# install .packages("car")
 library(car)
 
 # make simple regression model
@@ -59,7 +57,7 @@ summary(multiple_regression)
 # 0.01 : 1 percent opacity
 
 # Commented out for now
-# avPlots(multiple_regression, col = alpha("#000000", 0.02))
+avPlots(multiple_regression, col = alpha("#000000", 0.02))
 ```
 
 ```{r 2WayANOVA}
