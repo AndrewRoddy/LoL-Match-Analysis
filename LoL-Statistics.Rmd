@@ -20,6 +20,16 @@ row_count2 <- nrow(team_stats)
 col_count2 <- ncol(team_stats)
 cat("There are", row_count2, "rows.\n")
 cat("There are", col_count2, "columns.\n")
+
+library(dplyr)
+
+summoner_match <- read.csv("data/other/SummonerMatchTbl.csv")
+match_stats <- match_stats %>%
+  left_join(summoner_match, by = c("SummonerMatchFk" = "SummonerMatchId"))
+
+champions <- read.csv("data/keys/ChampionTbl.csv")
+match_stats <- match_stats %>%
+  left_join(champions, by = c("ChampionFk" = "ChampionId"))
 ```
 
 ```{r clean}
