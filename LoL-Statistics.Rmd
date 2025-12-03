@@ -36,3 +36,49 @@ ggplot(match_stats, aes(x = TotalGold, y = DmgDealt)) + geom_line()
 # }
 ```
 
+```{r 2WayANOVA}
+#KEYSTONE KEY
+#8465 - Guardian
+#8214 - SummonAery
+#8112 - Electrocute
+#0 - MissingData?
+#8128 - Dark Harvest
+#8010 - Conquerer
+#8229 - ArcaneComet
+#8369 - FirstStrike
+#8008 - LethalTempo
+#8005 - PressTheAttack
+#8439 - Afterschock
+#8230 - PhaseRush
+#9923 - HailOfBlades
+#8021 - FleetFootwork
+#8351 - GlacialAugment
+#8437 - GraspOfTheUndying
+#8360 - UnsealedSpellbook
+#Remove outliers
+dmgDealt = match_stats$DmgDealt
+Q1 = quantile(dmgDealt, 0.25)
+Q3 = quantile(dmgDealt, 0.75)
+IQR = Q3 - Q1
+
+lowerBound = Q1 - 1.5 * IQR
+upperBound = Q3 + 1.5 * IQR
+
+filtered = match_stats[dmgDealt >= lowerBound & dmgDealt <= upperBound & match_stats$PrimaryKeyStone != '0' & match_stats$Lane != "NONE", ]
+
+#2 Way ANOVA on Keystone and Role
+filtered$PrimaryKeyStone = factor(filtered$PrimaryKeyStone)
+filtered$Lane = factor(filtered$Lane)
+model = aov(DmgDealt ~ PrimaryKeyStone * Lane, data=filtered)
+summary(model)
+#Results show a high F value meaning that KeyStone has a large effect on average damage even with the large amount of noise (random player variation still makes most of the difference)
+#P-Values all very low so all very signifigant
+#Residuals are very high, meaning that KeyStone and Lane are primarily not the biggest effects and most is left up to other factors(Likely player randomness and maybe gold earned)
+
+#Find Individual stats
+KeyStoneStats = TukeyHSD(model, "PrimaryKeyStone")
+KeyStoneStats
+LaneStats = TukeyHSD(model, "Lane")
+LaneStats
+#NEED TO DO: GRAPH AND VISULIZE DATA PROPERLY
+```
