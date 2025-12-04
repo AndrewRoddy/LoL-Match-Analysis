@@ -102,7 +102,7 @@ keystone_order <- c(
   #Resolve
   "GraspOfTheUndying", "Guardian", "Aftershock"
 )
-
+#Define Color Pallette for graphing and relations of color -> Rune
 color_pallette <- c(
   "Precision1" = "#ffee00",
   "Precision2" = "#e2d524",
@@ -124,7 +124,8 @@ color_pallette <- c(
 rune_colors <- color_pallette[rune_stones_lookup$tree]
 names(rune_colors) <- rune_stones_lookup$rune
 
-#ANOVA TEST
+#Filter out ourliers in data & missing data entries
+#Some games have extremely high damage due to non-realistic playstyles
 dmg_dealt <- match_stats$DmgDealt
 q1 <- quantile(dmg_dealt, 0.25)
 q3 <- quantile(dmg_dealt, 0.75)
@@ -159,7 +160,6 @@ key_stone_stats <- TukeyHSD(model, "PrimaryKeyStone")
 #key_stone_stats
 lane_stats <- TukeyHSD(model, "Lane")
 #lane_stats
-#NEED TO DO: GRAPH AND VISULIZE DATA PROPERLY
 
 # Make sure factors are properly set
 filtered$PrimaryKeyStone <- factor(filtered$PrimaryKeyStone)
@@ -169,12 +169,10 @@ filtered$Lane <- factor(filtered$Lane)
 filtered <- filtered %>%
   left_join(rune_stones_lookup, by = c("PrimaryKeyStone" = "ID"))
 
+#Reorganizes data to group by keystone order (Domination, Precision, etc.)
 filtered$rune <- factor(filtered$rune, levels = keystone_order)
 
-#Filter out 0> damage games (Should not exist but makes graph strange)
-df_lane <- df_lane %>%
-  filter(DmgDealt >= 0)
-#Loop over lanes
+#Loop over lanes and create graph for each
 lanes <- unique(filtered$Lane)
 for (lane in lanes){
 
