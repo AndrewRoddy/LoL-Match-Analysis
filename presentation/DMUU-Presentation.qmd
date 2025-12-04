@@ -1,0 +1,29 @@
+---
+title: "League of Legends Match Analysis"
+author: "Logan Senol, Caleb Stanberry, Andrew Roddy"
+format: html # Test Mode
+# format: revealjs # Present Mode
+css: styles.css
+---
+
+## League of Legends Crash Course {style="text-align: center"}
+
+What is League of Legends?
+
+
+![](img/lol-logo.png){width="50%"}
+
+Also known as "League" and "LoL".
+
+## League of Legends
+
+League of Legends is a video game with 25 million monthly active players. The game has three main components, the nexus, gold, and minions. Two teams of five players fight to destroy eachothers home base.
+
+<!-- Source : https://activeplayer.io/league-of-legends/ -->
+
+## Code
+
+```{r}
+#| echo: true
+1 + 1
+```
