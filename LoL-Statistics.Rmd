@@ -61,25 +61,61 @@ summary(multiple_regression)
 ```
 
 ```{r 2WayANOVA}
-#KEYSTONE KEY
-#8465 - Guardian
-#8214 - SummonAery
-#8112 - Electrocute
-#0 - MissingData?
-#8128 - Dark Harvest
-#8010 - Conquerer
-#8229 - ArcaneComet
-#8369 - FirstStrike
-#8008 - LethalTempo
-#8005 - PressTheAttack
-#8439 - Afterschock
-#8230 - PhaseRush
-#9923 - HailOfBlades
-#8021 - FleetFootwork
-#8351 - GlacialAugment
-#8437 - GraspOfTheUndying
-#8360 - UnsealedSpellbook
-#Remove outliers
+library(ggplot2)
+library(dplyr)
+
+
+#Definition list for each rune name and ID
+rune_stones_lookup <- data.frame(
+  rune = c("Guardian", "SummonAery", "Electrocute", "DarkHarvest", "Conquerer",
+  "ArcaneComet", "FirstStrike", "LethalTempo", "PressTheAttack",
+  "Aftershock", "PhaseRush", "HailOfBlades", "FleetFootwork", "GlacialAugment",
+  "GraspOfTheUndying", "UnsealedSpellbook"),
+  ID = c("8465", "8214", "8112", "8128", "8010",
+  "8229", "8369", "8008", "8005",
+  "8439", "8230", "9923", "8021", "8351",
+  "8437", "8360"),
+  tree = c("Resolve1", "Sorcery1", "Domination1", "Domination2", "Precision1",
+  "Sorcery2", "Inspiration1", "Precision2", "Precision3",
+  "Resolve2", "Sorcery3", "Domination3", "Precision4", "Inspiration2",
+  "Resolve3", "Inspiration3")
+)
+
+keystone_order <- c(
+  #Precision
+  "Conquerer", "LethalTempo", "PressTheAttack", "FleetFootwork",
+  #Domination
+  "DarkHarvest", "Electrocute", "HailOfBlades",
+  #Inspiration
+  "GlacialAugment", "UnsealedSpellbook", "FirstStrike",
+  #Sorcery
+  "ArcaneComet", "SummonAery", "PhaseRush",
+  #Resolve
+  "GraspOfTheUndying", "Guardian", "Aftershock"
+)
+
+color_pallette <- c(
+  "Precision1" = "#ffee00",
+  "Precision2" = "#e2d524",
+  "Precision3" = "#bbb01e",
+  "Precision4" = "#8f8717",
+  "Domination1" = "#af1919",
+  "Domination2" = "#d81d1d",
+  "Domination3" = "#811212",
+  "Inspiration1" = "#267580",
+  "Inspiration2" = "#36b0c0",
+  "Inspiration3" = "#2c92a0",
+  "Sorcery1" = "#700a8f",
+  "Sorcery2" = "#8d0cb4",
+  "Sorcery3" = "#5c0975",
+  "Resolve1" = "#077e1b",
+  "Resolve2" = "#056114",
+  "Resolve3" = "#08a522"
+)
+rune_colors <- color_pallette[rune_stones_lookup$tree]
+names(rune_colors) <- rune_stones_lookup$rune
+
+#ANOVA TEST
 dmg_dealt <- match_stats$DmgDealt
 q1 <- quantile(dmg_dealt, 0.25)
 q3 <- quantile(dmg_dealt, 0.75)
@@ -111,10 +147,39 @@ summary(model)
 
 #Find Individual stats
 key_stone_stats <- TukeyHSD(model, "PrimaryKeyStone")
-key_stone_stats
+#key_stone_stats
 lane_stats <- TukeyHSD(model, "Lane")
-lane_stats
+#lane_stats
 #NEED TO DO: GRAPH AND VISULIZE DATA PROPERLY
+
+# Make sure factors are properly set
+filtered$PrimaryKeyStone <- factor(filtered$PrimaryKeyStone)
+filtered$Lane <- factor(filtered$Lane)
+
+#Relate Keystone ID, Name, and Colors
+filtered <- filtered %>%
+  left_join(rune_stones_lookup, by = c("PrimaryKeyStone" = "ID"))
+
+filtered$rune <- factor(filtered$rune, levels = keystone_order)
+
+#Filter out 0> damage games (Should not exist but makes graph strange)
+df_lane <- df_lane %>%
+  filter(DmgDealt >= 0)
+#Loop over lanes
+lanes <- unique(filtered$Lane)
+for (lane in lanes){
+
+  df_lane <- filtered[filtered$Lane == lane, ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle(lane) +
+    theme(axis.text.x = element_blank())
+
+  print(plot)
+}
 ```
 
 ```{r Team Logistic Regression}
