@@ -1,0 +1,32 @@
+
+// This comment HAS to be here do not edit it
+/*-- scss:rules --*/
+//
+
+// This is mostly just like the backgrounds and reg text sometimes
+.reveal {
+  font-family: georgia, Arial, Helvetica, sans-serif;
+  color: #100f0f;
+  background: hsl(48, 100%, 97%);
+}
+
+.reveal h1, .reveal h2, .reveal h3 {
+  font-family: "Times New Roman", Tahoma, Arial, Helvetica, sans-serif;
+  color: #205ea6;
+}
+
+.reveal .center {
+  text-align: center;
+}
+
+// // This is all text on slides
+// .reveal p {
+//   text-align: center;
+// }
+
+
+
+// The code output
+.reveal pre code {
+  background: #fffcf0;
+}

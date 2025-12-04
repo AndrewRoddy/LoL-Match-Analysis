@@ -1,0 +1,42 @@
+---
+title: "League of Legends Match Analysis"
+author: "Logan Senol, Caleb Stanberry, Andrew Roddy"
+# format: html # Test Mode
+format: 
+    revealjs: # Present Mode
+        theme: [default, styles.scss]
+---
+
+## League of Legends Crash Course {.center}
+
+What is League of Legends?
+
+
+![Also known as "League" and "LoL".](img/lol-logo.png){width="50%"}
+
+
+
+## Components 
+
+
+Four main components
+
+ - champions
+
+ - nexus
+
+ - gold
+
+ - minions
+ 
+ 
+Two teams of five players fight to destroy eachothers home base.
+
+<!-- Source : https://activeplayer.io/league-of-legends/ -->
+
+## Code
+
+```{r}
+#| echo: true
+1 + 1
+```
