@@ -24,11 +24,11 @@ cat("There are", col_count2, "columns.\n")
 library(dplyr)
 
 summoner_match <- read.csv("data/other/SummonerMatchTbl.csv")
-match_stats <- match_stats %>%
+match_stats <- match_stats |>
   left_join(summoner_match, by = c("SummonerMatchFk" = "SummonerMatchId"))
 
 champions <- read.csv("data/keys/ChampionTbl.csv")
-match_stats <- match_stats %>%
+match_stats <- match_stats |>
   left_join(champions, by = c("ChampionFk" = "ChampionId"))
 ```
 
@@ -166,7 +166,7 @@ filtered$PrimaryKeyStone <- factor(filtered$PrimaryKeyStone)
 filtered$Lane <- factor(filtered$Lane)
 
 #Relate Keystone ID, Name, and Colors
-filtered <- filtered %>%
+filtered <- filtered |>
   left_join(rune_stones_lookup, by = c("PrimaryKeyStone" = "ID"))
 
 #Reorganizes data to group by keystone order (Domination, Precision, etc.)
