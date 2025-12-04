@@ -76,18 +76,26 @@ library(dplyr)
 
 #Definition list for each rune name and ID
 rune_stones_lookup <- data.frame(
-  rune = c("Guardian", "SummonAery", "Electrocute", "DarkHarvest", "Conquerer",
-  "ArcaneComet", "FirstStrike", "LethalTempo", "PressTheAttack",
-  "Aftershock", "PhaseRush", "HailOfBlades", "FleetFootwork", "GlacialAugment",
-  "GraspOfTheUndying", "UnsealedSpellbook"),
-  ID = c("8465", "8214", "8112", "8128", "8010",
-  "8229", "8369", "8008", "8005",
-  "8439", "8230", "9923", "8021", "8351",
-  "8437", "8360"),
-  tree = c("Resolve1", "Sorcery1", "Domination1", "Domination2", "Precision1",
-  "Sorcery2", "Inspiration1", "Precision2", "Precision3",
-  "Resolve2", "Sorcery3", "Domination3", "Precision4", "Inspiration2",
-  "Resolve3", "Inspiration3")
+  rune = c(
+    "Guardian", "SummonAery", "Electrocute", "DarkHarvest", "Conquerer",
+    "ArcaneComet", "FirstStrike", "LethalTempo", "PressTheAttack",
+    "Aftershock", "PhaseRush", "HailOfBlades", "FleetFootwork",
+    "GlacialAugment", "GraspOfTheUndying", "UnsealedSpellbook"
+  ),
+
+  ID = c(
+    "8465", "8214", "8112", "8128", "8010",
+    "8229", "8369", "8008", "8005",
+    "8439", "8230", "9923", "8021", "8351",
+    "8437", "8360"
+  ),
+
+  tree = c(
+    "Resolve1", "Sorcery1", "Domination1", "Domination2", "Precision1",
+    "Sorcery2", "Inspiration1", "Precision2", "Precision3",
+    "Resolve2", "Sorcery3", "Domination3", "Precision4", "Inspiration2",
+    "Resolve3", "Inspiration3"
+  )
 )
 
 keystone_order <- c(
