@@ -20,61 +20,60 @@ What is League of Legends?
 ## Components 
 
 
-Four main components
+Six main components
 
  - champions
-
  - teams
-
  - towers
-
  - minions
-
  - gold
-
  - nexus
 
-## Champions {.center}
 
+
+## Champions {.center}
 Before the game each player selects one of the 172 champions. Each champion has unique abilities and stats.
 
-![](img/champions.png){width="50%"}
+![](img/champions.png){width="70%"}
+
+
 
 ## Teams {.center}
+Two teams compete against eachother with 5 players on each team. Each player chooses an different role.
 
-Two teams compete against eachother with 5 players on each team.
-Each player chooses an different role.
 ![](img/roles.png){width="70%"}
 
-## Minions {.center}
 
 
+## The Nexus {.center}
+Destroy the opposing teams nexus to win the game. There are problems along the way.
 
-![](img/minion.png){width="25%"}
-![](img/minion-hammer.png){width="25%"}
-![](img/minion-seige.png){width="25%"}
+![](img/nexus.png){width="15%"}
+
+
 
 ## Towers {.center}
-
-Each team has 9 towers on their side of the map. If the opponent gets too close they attack. Destroy the towers to get to...
+Each team has 9 towers on their side of the map. They must be destroyed to access the Nexus but if the opponent gets too close they attack.
 
 ![](img/tower-map.png){width="50%" right-margin="100px"}
 &nbsp; <!-- Adds a space between images -->
 &nbsp;
 ![](img/tower.png){width="15%"}
 
-## The Nexus {.center}
-
-Destroy the opposing teams nexus to win the game.
-
-![](img/nexus.png){width="15%"}
 
 
+## Minions {.center}
+
+Luckily minions can be used to distract the towers from attacking the players. The minions also drop gold when eliminated.
+
+![](img/minion.png){width="25%"}
+![](img/minion-hammer.png){width="25%"}
+![](img/minion-seige.png){width="25%"}
 
 
-## Code
 
-```{r}
-#| echo: true
-1 + 1
-```
+## Gold {.center}
+
+Gold can be used to purchase items which increase the stats of the champions.
+
+![](img/gold-pile.png){width="25%"}
