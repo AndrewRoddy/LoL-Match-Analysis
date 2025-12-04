@@ -31,7 +31,7 @@ Six main components
 
 
 
-## Champions {.center}
+## Champions{.center}
 Before the game each player selects one of the 172 champions. Each champion has unique abilities and stats.
 
 ![](img/champions.png){width="70%"}
@@ -66,9 +66,9 @@ Each team has 9 towers on their side of the map. They must be destroyed to acces
 
 Luckily minions can be used to distract the towers from attacking the players. The minions also drop gold when eliminated.
 
-![](img/minion.png){width="25%"}
-![](img/minion-hammer.png){width="25%"}
-![](img/minion-seige.png){width="25%"}
+![](img/minion.png){width="27%"}
+![](img/minion-hammer.png){width="27%"}
+![](img/minion-seige.png){width="27%"}
 
 
 
@@ -77,3 +77,38 @@ Luckily minions can be used to distract the towers from attacking the players. T
 Gold can be used to purchase items which increase the stats of the champions.
 
 ![](img/gold-pile.png){width="25%"}
+
+
+
+## Data Size {.big-code}
+Our analysis uses data from 150,000 matches of player data and 68,000 matches of team data. This means sometimes we will use screenshots from our code instead of running it live.
+
+```{r import}
+#| echo: false
+match_stats <- read.csv("../data/MatchStatsTbl.csv")
+row_count <- nrow(match_stats)
+col_count <- ncol(match_stats)
+cat("Player Data:\nThere are", row_count, "rows.\n")
+cat("There are", col_count, "columns.\n\n")
+```
+
+&nbsp;
+
+```{r import2}
+team_stats <- read.csv("../data/TeamMatchTbl.csv")
+row_count2 <- nrow(team_stats)
+col_count2 <- ncol(team_stats)
+cat("Team Data:\nThere are", row_count2, "rows.\n")
+cat("There are", col_count2, "columns.\n")
+
+library(dplyr)
+
+summoner_match <- read.csv("../data/other/SummonerMatchTbl.csv")
+match_stats <- match_stats |>
+  left_join(summoner_match, by = c("SummonerMatchFk" = "SummonerMatchId"))
+
+champions <- read.csv("../data/keys/ChampionTbl.csv")
+match_stats <- match_stats |>
+left_join(champions, by = c("ChampionFk" = "ChampionId"))
+```
+

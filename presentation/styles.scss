@@ -23,14 +23,17 @@
   text-align: center;
 }
 
-// // This is all text on slides
-// .reveal p {
-//   text-align: center;
-// }
-
-
+// This is all text on slides
+.reveal p {
+  font-size: 1em;
+}
 
 // The code output
 .reveal pre code {
   background: #fffcf0;
+}
+
+// Works on both the "pre" and the "code" lol
+.reveal .big-code pre code {
+  font-size:2em;
 }

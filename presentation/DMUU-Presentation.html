@@ -29,7 +29,7 @@
       vertical-align: middle;
     }
   </style>
-  <link rel="stylesheet" href="DMUU-Presentation_files/libs/revealjs/dist/theme/quarto-bcd5b7d6bb6d94405d4162180378771f.css">
+  <link rel="stylesheet" href="DMUU-Presentation_files/libs/revealjs/dist/theme/quarto-ce1196660943a7a953a74d561e988a84.css">
   <link href="DMUU-Presentation_files/libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="DMUU-Presentation_files/libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="DMUU-Presentation_files/libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -178,14 +178,37 @@ Logan Senol, Caleb Stanberry, Andrew Roddy
 <section id="minions" class="slide level2 center">
 <h2>Minions</h2>
 <p>Luckily minions can be used to distract the towers from attacking the players. The minions also drop gold when eliminated.</p>
-<p><img data-src="img/minion.png" style="width:25.0%"> <img data-src="img/minion-hammer.png" style="width:25.0%"> <img data-src="img/minion-seige.png" style="width:25.0%"></p>
+<p><img data-src="img/minion.png" style="width:27.0%"> <img data-src="img/minion-hammer.png" style="width:27.0%"> <img data-src="img/minion-seige.png" style="width:27.0%"></p>
 </section>
 <section id="gold" class="slide level2 center">
 <h2>Gold</h2>
 <p>Gold can be used to purchase items which increase the stats of the champions.</p>
 
-
 <img data-src="img/gold-pile.png" style="width:25.0%" class="r-stretch"></section>
+<section id="data-size" class="slide level2 big-code">
+<h2>Data Size</h2>
+<p>Our analysis uses data from 150,000 matches of player data and 68,000 matches of team data. This means sometimes we will use screenshots from our code instead of running it live.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Player Data:
+There are 150505 rows.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>There are 31 columns.</code></pre>
+</div>
+</div>
+<p>&nbsp;</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Team Data:
+There are 68676 rows.</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>There are 24 columns.</code></pre>
+</div>
+</div>
+
+</section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
@@ -401,6 +424,82 @@ Logan Senol, Caleb Stanberry, Andrew Roddy
         ]
       });
     </script>
+    
+
+    <script>
+
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+
+      // slide changes (different for each slide format).
+
+      (function () {
+
+        // dispatch for htmlwidgets
+
+        function fireSlideEnter() {
+
+          const event = window.document.createEvent("Event");
+
+          event.initEvent("slideenter", true, true);
+
+          window.document.dispatchEvent(event);
+
+        }
+
+    
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+
+          fireSlideEnter();
+
+    
+
+          // dispatch for shiny
+
+          if (window.jQuery) {
+
+            if (previousSlide) {
+
+              window.jQuery(previousSlide).trigger("hidden");
+
+            }
+
+            if (currentSlide) {
+
+              window.jQuery(currentSlide).trigger("shown");
+
+            }
+
+          }
+
+        }
+
+    
+
+        // hookup for slidy
+
+        if (window.w3c_slidy) {
+
+          window.w3c_slidy.add_observer(function (slide_num) {
+
+            // slide_num starts at position 1
+
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+
+          });
+
+        }
+
+    
+
+      })();
+
+    </script>
+
+    
+
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
         const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
