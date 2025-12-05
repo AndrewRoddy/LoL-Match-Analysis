@@ -293,7 +293,7 @@ bar_graph <- ggplot(
   geom_bar(stat = "identity", position = "dodge") +
   theme_minimal() +
   labs(title = "Cluster Centers (Scaled Values)",
-        x = "Feature", y = "Scaled Value") +
+       x = "Feature", y = "Scaled Value") +
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
 
 print(cluster_graph)
@@ -338,7 +338,7 @@ ahri_keystone_summary <- ahri_data |>
   filter(games >= 5) |>
   arrange(desc(winrate))
 
-ahri_keystone_summary
+print(ahri_keystone_summary)
 
 # Is difference between them signifigant
 test_table <- table(ahri_data$PrimaryKeyStone, ahri_data$Win)
@@ -373,5 +373,6 @@ ahri_item_summary <- ahri_item_data |>
   filter(games >= 25) |>
   arrange(desc(winrate))
 
-ahri_item_summary
+# p rint(ahri_item_summary, n = nrow(ahri_item_summary))
+print(ahri_item_summary)
 ```

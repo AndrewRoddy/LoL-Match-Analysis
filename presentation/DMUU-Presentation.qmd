@@ -384,6 +384,8 @@ df_lane <- filtered[filtered$Lane == "SUPPORT", ]
 print(plot)
 ```
 
+
+
 ## Play Style Clustering
 Use K-Means clustering on specific match stats. We set k = 3 and expect to see the three main styles of play get their own cluster (Jungler, Support, Laner).
 
@@ -444,14 +446,109 @@ bar_graph <- ggplot(centers_melt, aes(x = variable, y = value, fill = cluster)) 
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
 ```
 
+
+
 ## Play Style Cluster Graph
 ```{r cluster_graph}
 cluster_graph
 ```
 
+
+
 ## Play Style Bar Graph
 ```{r bar_graph}
 bar_graph
+```
+
+
+
+## Chi Square Test - Build Optimizer
+
+type here
+
+```{r Build Optimizer}
+library(dplyr)
+library(tidyr)
+# Pull all data from matchstats table and find the optimum
+#   build and rune setup for each character.
+# Where the build appears more than once.
+# First Aggregate all builds that appear more than once
+# Using Ahri as a proof baseline ChampID:103
+library(dplyr)
+
+# Filter to only Ahri games where the
+#   Mode was not some alternate gamemode
+#   (Normal Summoners Rift Only)
+ahri_data <- match_stats |> filter(ChampionName == "Ahri")
+ahri_data <- ahri_data |> filter(Lane != "None" & PrimaryKeyStone != 0)
+ahri_wins <- sum(ahri_data$Win == 1)
+total_games <- length(ahri_data$Win)
+
+# First find if Ahris winrate is statistically signifigant
+prop.test(ahri_wins, total_games)
+
+# Prop Test shows us that Ahri's winrate is statistically different
+# from the baseline of 50% by a large margin over time
+
+test_table <- table(as.factor(ahri_data$PrimaryKeyStone), ahri_data$Win)
+chisq.test(test_table)
+# Ahris Winrate is signifigant between Keystones
+
+# Find highest winrate keystone with more than 5 games played
+ahri_keystone_summary <- ahri_data |>
+  group_by(PrimaryKeyStone) |>
+  summarise(
+    games = n(),
+    winrate = mean(Win)
+  ) |> 
+  filter(games >= 5) |>
+  arrange(desc(winrate))
+
+print(ahri_keystone_summary)
+```
+
+
+
+## Fisher Test - Build Optimizer
+
+type here
+
+```{r risher test}
+# Is difference between them signifigant
+test_table <- table(ahri_data$PrimaryKeyStone, ahri_data$Win)
+fisher.test(test_table) #Alternative chi^2 because of some runes low sample size
+# May be innaccurate due to nature of game
+
+# Find best items on Ahri
+# First need to aggregate item counts
+unique_items <- unique(
+  unlist(
+    ahri_data[c(
+      "item1", "item2", "item3", "item4", "item5", "item6"
+    )]
+  )
+)
+
+ahri_item_data <- ahri_data |>
+  pivot_longer(
+    cols = c(
+      "item1", "item2", "item3", "item4", "item5", "item6"
+    ),
+    names_to = "slots",
+    values_to = "item"
+  )
+
+ahri_item_summary <- ahri_item_data |>
+  group_by(item) |>
+  summarise(
+    games = n(),
+    winrate = mean(Win)
+  ) |>
+  filter(games >= 25) |>
+  arrange(desc(winrate))
+
+# p rint(ahri_item_summary, n = nrow(ahri_item_summary))
+print(ahri_item_summary)
 ```
 
 ## Thank You! {.center}
