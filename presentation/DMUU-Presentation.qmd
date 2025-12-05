@@ -112,6 +112,8 @@ match_stats <- match_stats |>
 left_join(champions, by = c("ChampionFk" = "ChampionId"))
 ```
 
+
+
 ## Multiple Regression
 ```{r clean}
 
@@ -141,6 +143,7 @@ summary(multiple_regression)
 ```
 
 
+
 ## Multiple Regression Graph {.big-code}
 ```{r multiple regression graph}
 # Creates the variable plots
@@ -151,17 +154,26 @@ summary(multiple_regression)
 avPlots(multiple_regression, col = alpha("#000000", 0.02))
 ```
 
-## Chi-square Test of Independence
+
+
+
+## Chi-square Test of Independence {.big-code}
 
 
 The test determines if win rate depends on champion. 
 
 
 Assumptions: 
-- Data is categorical 
-- Observations are independent 
-- Expected Frequency ≥ 5 
 
+ - Data is categorical 
+ - Observations are independent 
+ - Expected Frequency ≥ 5 
+
+
+
+
+## Chi-square Test of Independence {.big-code}
+We reject the null hypothesis. There is a statistically significant association between champion choice and match outcome (win/loss).
 
 ```{r Champion and Win Test for Independence}
 library(dplyr)
@@ -178,6 +190,3 @@ champion_win_table <- table(match_stats$ChampionName, match_stats$Win)
 chi_square_test <- chisq.test(champion_win_table)
 chi_square_test
 ```
-
-
-We reject the null hypothesis. There is a statistically significant association between champion choice and match outcome (win/loss).

@@ -240,6 +240,29 @@ F-statistic: 8.154e+04 on 4 and 150500 DF,  p-value: &lt; 2.2e-16</code></pre>
 </section>
 <section id="multiple-regression-graph" class="slide level2 big-code">
 <h2>Multiple Regression Graph</h2>
+</section>
+<section id="chi-square-test-of-independence" class="slide level2 big-code">
+<h2>Chi-square Test of Independence</h2>
+<p>The test determines if win rate depends on champion.</p>
+<p>Assumptions:</p>
+<ul>
+<li>Data is categorical</li>
+<li>Observations are independent</li>
+<li>Expected Frequency ≥ 5</li>
+</ul>
+</section>
+<section id="chi-square-test-of-independence-1" class="slide level2 big-code">
+<h2>Chi-square Test of Independence</h2>
+<p>We reject the null hypothesis. There is a statistically significant association between champion choice and match outcome (win/loss).</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  champion_win_table
+X-squared = 444.22, df = 170, p-value &lt; 2.2e-16</code></pre>
+</div>
+</div>
 
 </section>
     </div>
