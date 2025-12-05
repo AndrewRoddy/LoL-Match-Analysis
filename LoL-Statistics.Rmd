@@ -241,6 +241,7 @@ chi_square_test
 
 ```{r Play Style Clustering}
 library(ggplot2)
+install.packages("reshape2")
 library(reshape2)
 features <- match_stats[, c("DmgDealt", "DmgTaken",
                            "TotalGold", "kills", "deaths", "assists",
@@ -279,18 +280,24 @@ centers$cluster <- rownames(centers)
 
 centers_melt <- melt(centers, id = "cluster")
 
-ggplot(data.frame(pca$x, cluster = factor(km$cluster)),
-       aes(x = PC1, y = PC2, color = cluster)) +
+cluster_graph <- ggplot(data.frame(pca$x, cluster = factor(km$cluster)),
+                        aes(x = PC1, y = PC2, color = cluster)) +
   geom_point(alpha = 0.7) +
   theme_minimal() +
   labs(title = "Player Style Clusters (PCA Projection)")
 
 
-ggplot(centers_melt, aes(x = variable, y = value, fill = cluster)) +
+bar_graph <- ggplot(
+  centers_melt,
+  aes(x = variable, y = value, fill = cluster)
+) +
   geom_bar(stat = "identity", position = "dodge") +
   theme_minimal() +
   labs(title = "Cluster Centers (Scaled Values)",
         x = "Feature", y = "Scaled Value") +
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
+
+print(cluster_graph)
+print(bar_graph)
 ```
 
