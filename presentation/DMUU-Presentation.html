@@ -264,7 +264,68 @@ data:  champion_win_table
 X-squared = 444.22, df = 170, p-value &lt; 2.2e-16</code></pre>
 </div>
 </div>
+</section>
+<section id="two-way-anova" class="slide level2">
+<h2>Two Way Anova</h2>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>                         Df    Sum Sq   Mean Sq F value Pr(&gt;F)    
+PrimaryKeyStone          15 2.299e+12 1.533e+11 1287.77 &lt;2e-16 ***
+Lane                      4 5.753e+11 1.438e+11 1208.36 &lt;2e-16 ***
+PrimaryKeyStone:Lane     60 3.482e+11 5.804e+09   48.76 &lt;2e-16 ***
+Residuals            107096 1.275e+13 1.190e+08                   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+</section>
+<section id="top---two-way-anova" class="slide level2">
+<h2>Top - Two Way Anova</h2>
 
+<img data-src="DMUU-Presentation_files/figure-revealjs/tukey-top-1.png" width="960" class="r-stretch"></section>
+<section id="jungle---two-way-anova" class="slide level2">
+<h2>Jungle - Two Way Anova</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/tukey-jungle-1.png" width="960" class="r-stretch"></section>
+<section id="middle---two-way-anova" class="slide level2">
+<h2>Middle - Two Way Anova</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/tukey-middle-1.png" width="960" class="r-stretch"></section>
+<section id="bottom---two-way-anova" class="slide level2">
+<h2>Bottom - Two Way Anova</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/tukey-bottom-1.png" width="960" class="r-stretch"></section>
+<section id="support---two-way-anova" class="slide level2">
+<h2>Support - Two Way Anova</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/tukey-support-1.png" width="960" class="r-stretch"></section>
+<section id="play-style-clustering" class="slide level2">
+<h2>Play Style Clustering</h2>
+<p>Use K-Means clustering on specific match stats. We set k = 3 and expect to see the three main styles of play get their own cluster (Jungler, Support, Laner).</p>
+<p>Features: Damage Dealt, Damage Taken, Total Gold, Kills, Deaths, Assists, Vision Score, Dragon Kills, and Baron Kills.</p>
+<div class="columns">
+<div class="column">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="DMUU-Presentation_files/figure-revealjs/cluster_graph-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><div class="column">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="DMUU-Presentation_files/figure-revealjs/bar_graph-1.png" width="960"></p>
+</figure>
+</div>
+</div>
+</div>
+</div><p>::: <!-- end columns --></p>
+</div>
 </section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
@@ -482,80 +543,42 @@ X-squared = 444.22, df = 170, p-value &lt; 2.2e-16</code></pre>
       });
     </script>
     
-
     <script>
-
       // htmlwidgets need to know to resize themselves when slides are shown/hidden.
-
       // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
-
       // slide changes (different for each slide format).
-
       (function () {
-
         // dispatch for htmlwidgets
-
         function fireSlideEnter() {
-
           const event = window.document.createEvent("Event");
-
           event.initEvent("slideenter", true, true);
-
           window.document.dispatchEvent(event);
-
         }
-
-    
 
         function fireSlideChanged(previousSlide, currentSlide) {
-
           fireSlideEnter();
 
-    
-
           // dispatch for shiny
-
           if (window.jQuery) {
-
             if (previousSlide) {
-
               window.jQuery(previousSlide).trigger("hidden");
-
             }
-
             if (currentSlide) {
-
               window.jQuery(currentSlide).trigger("shown");
-
             }
-
           }
-
         }
-
-    
 
         // hookup for slidy
-
         if (window.w3c_slidy) {
-
           window.w3c_slidy.add_observer(function (slide_num) {
-
             // slide_num starts at position 1
-
             fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
-
           });
-
         }
 
-    
-
       })();
-
     </script>
-
-    
 
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {

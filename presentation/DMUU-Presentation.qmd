@@ -156,7 +156,6 @@ avPlots(multiple_regression, col = alpha("#000000", 0.02))
 
 
 
-
 ## Chi-square Test of Independence {.big-code}
 
 
@@ -168,7 +167,6 @@ Assumptions:
  - Data is categorical 
  - Observations are independent 
  - Expected Frequency ≥ 5 
-
 
 
 
@@ -190,3 +188,276 @@ champion_win_table <- table(match_stats$ChampionName, match_stats$Win)
 chi_square_test <- chisq.test(champion_win_table)
 chi_square_test
 ```
+
+## Two Way Anova
+```{r 2WayANOVA}
+library(ggplot2)
+library(dplyr)
+
+
+#Definition list for each rune name and ID
+rune_stones_lookup <- data.frame(
+  rune = c(
+    "Guardian", "SummonAery", "Electrocute", "DarkHarvest", "Conquerer",
+    "ArcaneComet", "FirstStrike", "LethalTempo", "PressTheAttack",
+    "Aftershock", "PhaseRush", "HailOfBlades", "FleetFootwork",
+    "GlacialAugment", "GraspOfTheUndying", "UnsealedSpellbook"
+  ),
+
+  ID = c(
+    "8465", "8214", "8112", "8128", "8010",
+    "8229", "8369", "8008", "8005",
+    "8439", "8230", "9923", "8021", "8351",
+    "8437", "8360"
+  ),
+
+  tree = c(
+    "Resolve1", "Sorcery1", "Domination1", "Domination2", "Precision1",
+    "Sorcery2", "Inspiration1", "Precision2", "Precision3",
+    "Resolve2", "Sorcery3", "Domination3", "Precision4", "Inspiration2",
+    "Resolve3", "Inspiration3"
+  )
+)
+
+keystone_order <- c(
+  #Precision
+  "Conquerer", "LethalTempo", "PressTheAttack", "FleetFootwork",
+  #Domination
+  "DarkHarvest", "Electrocute", "HailOfBlades",
+  #Inspiration
+  "GlacialAugment", "UnsealedSpellbook", "FirstStrike",
+  #Sorcery
+  "ArcaneComet", "SummonAery", "PhaseRush",
+  #Resolve
+  "GraspOfTheUndying", "Guardian", "Aftershock"
+)
+#Define Color Pallette for graphing and relations of color -> Rune
+color_pallette <- c(
+  "Precision1" = "#ffee00",
+  "Precision2" = "#e2d524",
+  "Precision3" = "#bbb01e",
+  "Precision4" = "#8f8717",
+  "Domination1" = "#af1919",
+  "Domination2" = "#d81d1d",
+  "Domination3" = "#811212",
+  "Inspiration1" = "#267580",
+  "Inspiration2" = "#36b0c0",
+  "Inspiration3" = "#2c92a0",
+  "Sorcery1" = "#700a8f",
+  "Sorcery2" = "#8d0cb4",
+  "Sorcery3" = "#5c0975",
+  "Resolve1" = "#077e1b",
+  "Resolve2" = "#056114",
+  "Resolve3" = "#08a522"
+)
+rune_colors <- color_pallette[rune_stones_lookup$tree]
+names(rune_colors) <- rune_stones_lookup$rune
+
+#Filter out ourliers in data & missing data entries
+#Some games have extremely high damage due to non-realistic playstyles
+dmg_dealt <- match_stats$DmgDealt
+q1 <- quantile(dmg_dealt, 0.25)
+q3 <- quantile(dmg_dealt, 0.75)
+iqr <- q3 - q1
+
+lower_bound <- q1 - 1.5 * iqr
+upper_bound <- q3 + 1.5 * iqr
+
+filtered <- match_stats[
+  dmg_dealt >= lower_bound & dmg_dealt <= upper_bound &
+    match_stats$PrimaryKeyStone != "0" & match_stats$Lane != "NONE",
+]
+
+# 2 Way ANOVA on Keystone and Role
+filtered$PrimaryKeyStone <- factor(filtered$PrimaryKeyStone)
+filtered$Lane <- factor(filtered$Lane)
+model <- aov(DmgDealt ~ PrimaryKeyStone * Lane, data = filtered)
+summary(model)
+
+# Results show a high F value meaning that KeyStone has a large
+# effect on average damage even with the large amount of noise
+# (random player variation still makes most of the difference)
+
+# P-Values all very low so all very signifigant
+# Residuals are very high, meaning that KeyStone and
+# Lane are primarily not the biggest effects and
+# most is left up to other factors
+# (Likely player randomness and maybe gold earned)
+
+#Find Individual stats
+key_stone_stats <- TukeyHSD(model, "PrimaryKeyStone")
+#key_stone_stats
+lane_stats <- TukeyHSD(model, "Lane")
+#lane_stats
+
+# Make sure factors are properly set
+filtered$PrimaryKeyStone <- factor(filtered$PrimaryKeyStone)
+filtered$Lane <- factor(filtered$Lane)
+
+#Relate Keystone ID, Name, and Colors
+filtered <- filtered |>
+  left_join(rune_stones_lookup, by = c("PrimaryKeyStone" = "ID"))
+
+#Reorganizes data to group by keystone order (Domination, Precision, etc.)
+filtered$rune <- factor(filtered$rune, levels = keystone_order)
+
+#Loop over lanes and create graph for each
+lanes <- unique(filtered$Lane)
+```
+
+
+
+## Top - Two Way Anova
+```{r tukey-top}
+df_lane <- filtered[filtered$Lane == "TOP", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("TOP") +
+    theme(axis.text.x = element_blank())
+
+print(plot)
+```
+
+
+
+## Jungle - Two Way Anova
+```{r tukey-jungle}
+df_lane <- filtered[filtered$Lane == "JUNGLE", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("JUNGLE") +
+    theme(axis.text.x = element_blank())
+
+print(plot)
+```
+
+
+
+## Middle - Two Way Anova
+```{r tukey-middle}
+df_lane <- filtered[filtered$Lane == "MIDDLE", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("MIDDLE") +
+    theme(axis.text.x = element_blank())
+
+print(plot)
+```
+
+
+
+## Bottom - Two Way Anova
+```{r tukey-bottom}
+df_lane <- filtered[filtered$Lane == "BOTTOM", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("BOTTOM") +
+    theme(axis.text.x = element_blank())
+
+print(plot)
+```
+
+
+
+## Support - Two Way Anova
+```{r tukey-support}
+df_lane <- filtered[filtered$Lane == "SUPPORT", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("SUPPORT") +
+    theme(axis.text.x = element_blank())
+
+print(plot)
+```
+
+## Play Style Clustering
+Use K-Means clustering on specific match stats. We set k = 3 and expect to see the three main styles of play get their own cluster (Jungler, Support, Laner).
+
+Features: Damage Dealt, Damage Taken, Total Gold, Kills, Deaths, Assists, Vision Score, Dragon Kills, and Baron Kills.
+
+```{r Play Style Clustering}
+library(ggplot2)
+library(reshape2)
+features <- match_stats[, c("DmgDealt", "DmgTaken",
+                           "TotalGold", "kills", "deaths", "assists",
+                           "visionScore", "DragonKills", "BaronKills")]
+
+
+#Scale features for clustering (Necessary when measuring distance)
+scaled_features <- scale(features)
+
+
+best <- NULL
+best_wss <- Inf
+
+
+for (i in 1:10){
+ km_tmp <- kmeans(scaled_features, centers = 3, nstart = 25)
+ if (km_tmp$tot.withinss < best_wss) {
+   best = km_tmp
+   best_wss = km_tmp$tot.withinss
+ }
+}
+
+
+km <- best   # optimal run
+
+
+match_stats$cluster <- km$cluster
+
+
+pca <- prcomp(scaled_features)
+
+
+centers <- as.data.frame(km$centers)
+centers$cluster <- rownames(centers)
+
+
+centers_melt <- melt(centers, id = "cluster")
+
+cluster_graph = ggplot(data.frame(pca$x, cluster=factor(km$cluster)),
+       aes(x=PC1, y=PC2, color=cluster)) +
+  geom_point(alpha=0.7) +
+  theme_minimal() +
+  labs(title="Player Style Clusters (PCA Projection)")
+
+bar_graph = ggplot(centers_melt, aes(x = variable, y = value, fill = cluster)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme_minimal() +
+  labs(title = "Cluster Centers (Scaled Values)",
+        x = "Feature", y = "Scaled Value") +
+  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
+```
+
+::: {.columns}
+::: {.column}
+```{r cluster_graph}
+cluster_graph
+```
+:::
+::: {.column}
+```{r bar_graph}
+bar_graph
+```
+
+:::
+
+
+
+
+
