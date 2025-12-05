@@ -112,3 +112,41 @@ match_stats <- match_stats |>
 left_join(champions, by = c("ChampionFk" = "ChampionId"))
 ```
 
+## Multiple Regression
+```{r clean}
+
+# Removes unimportant columns of data
+match_stats[, c(
+  "item1", "item2", "item3", "item4", "item5", "item6",
+  "PrimarySlot1", "PrimarySlot2", "PrimarySlot3",
+  "SecondarySlot1", "SecondarySlot2",
+  "SummonerSpell1", "SummonerSpell2"
+)] <- list(NULL)
+```
+
+Multiple regression to test if 
+```{r sort and cycle}
+
+library(ggplot2)
+library(scales)
+library(car)
+
+# make simple regression model
+multiple_regression <- lm(DmgDealt ~
+    DmgTaken + TotalGold + MinionsKilled + TurretDmgDealt,
+  data = match_stats
+)
+# Print off if this matters or not
+summary(multiple_regression)
+```
+
+
+## Multiple Regression Graph {.big-code}
+```{r multiple regression graph}
+# Creates the variable plots
+#000000 point color
+#0.01 : 1 percent opacity
+
+# Commented out for now
+avPlots(multiple_regression, col = alpha("#000000", 0.02))
+```

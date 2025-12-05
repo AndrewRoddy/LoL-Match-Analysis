@@ -207,8 +207,42 @@ There are 68676 rows.</code></pre>
 <pre><code>There are 24 columns.</code></pre>
 </div>
 </div>
-
 </section>
+<section id="multiple-regression" class="slide level2">
+<h2>Multiple Regression</h2>
+<p>Multiple regression to test if</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = DmgDealt ~ DmgTaken + TotalGold + MinionsKilled + 
+    TurretDmgDealt, data = match_stats)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-77051  -5559   -702   4379 198600 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)    -1.171e+04  7.372e+01 -158.85   &lt;2e-16 ***
+DmgTaken        1.241e-01  1.828e-03   67.88   &lt;2e-16 ***
+TotalGold       2.954e+00  7.589e-03  389.27   &lt;2e-16 ***
+MinionsKilled  -1.272e+01  3.176e-01  -40.03   &lt;2e-16 ***
+TurretDmgDealt -8.420e+02  1.473e+01  -57.15   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 9929 on 150500 degrees of freedom
+Multiple R-squared:  0.6843,    Adjusted R-squared:  0.6843 
+F-statistic: 8.154e+04 on 4 and 150500 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+</section>
+<section id="multiple-regression-graph" class="slide level2 big-code">
+<h2>Multiple Regression Graph</h2>
+
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/multiple%20regression%20graph-1.png" width="960" class="r-stretch"></section>
     </div>
   <div class="quarto-auto-generated-content" style="display: none;">
 <div class="footer footer-default">
