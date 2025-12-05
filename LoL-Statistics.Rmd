@@ -232,4 +232,59 @@ probability <- odds / (1 + odds)
 probability
 ```
 
+```{r Champion and Win Test for Independence}
+tab <- table(match_stats$ChampionName, match_stats$Win)
+chi_square_test <- chisq.test(tab)
+chi_square_test
+```
+
+
+```{r Play Style Clustering}
+library(ggplot2)
+library(reshape2)
+features <- match_stats[, c("DmgDealt", "DmgTaken",
+                           "TotalGold", "kills", "deaths", "assists",
+                           "visionScore", "DragonKills", "BaronKills")]
+
+
+#Scale features for clustering (Necessary when measuring distance)
+scaled_features <- scale(features)
+
+
+best <- NULL
+best_wss <- Inf
+
+
+for (i in 1:10){
+ km_tmp <- kmeans(scaled_features, centers = 3, nstart = 25)
+ if (km_tmp$tot.withinss < best_wss) {
+   best = km_tmp
+   best_wss = km_tmp$tot.withinss
+ }
+}
+
+
+km <- best   # optimal run
+
+
+match_stats$cluster <- km$cluster
+
+
+pca <- prcomp(scaled_features)
+
+
+centers <- as.data.frame(km$centers)
+centers$cluster <- rownames(centers)
+
+
+centers_melt <- melt(centers, id = "cluster")
+
+
+ggplot(centers_melt, aes(x = variable, y = value, fill = cluster)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  theme_minimal() +
+  nlabs(title = "Cluster Centers (Scaled Values)",
+        x = "Feature", y = "Scaled Value") +
+  theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
+```
 
