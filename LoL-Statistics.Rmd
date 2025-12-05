@@ -283,7 +283,7 @@ centers_melt <- melt(centers, id = "cluster")
 ggplot(centers_melt, aes(x = variable, y = value, fill = cluster)) +
   geom_bar(stat = "identity", position = "dodge") +
   theme_minimal() +
-  nlabs(title = "Cluster Centers (Scaled Values)",
+  labs(title = "Cluster Centers (Scaled Values)",
         x = "Feature", y = "Scaled Value") +
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
 ```
