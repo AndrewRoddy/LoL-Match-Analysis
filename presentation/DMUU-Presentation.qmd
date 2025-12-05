@@ -124,7 +124,7 @@ match_stats[, c(
 )] <- list(NULL)
 ```
 
-Multiple regression to test if 
+Multiple regression to test if we can predict the damage a player has dealt knowing the damage they have taken, the gold they had, the minions they eliminated, and the amount of damage they did to turrets.
 ```{r sort and cycle}
 
 library(ggplot2)
