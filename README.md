@@ -41,3 +41,7 @@ Presentation can be done in R (Quarto Presentatio) but can be done in any softwa
 - Chi^2 Test of Independence on champions and winrate (Make our own meta predictor)?
 - Could do some kind of simple machine learning to predict win loss on some combination of stats?
 - Effect of Mastery Points on kills or win/loss?
+
+# Installation
+R : To run the R code install R studio and open the `.Rmd` file
+Presentation : run `presentation/DMUU-Presentation.html` to view the presentation
