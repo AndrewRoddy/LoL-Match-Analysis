@@ -150,3 +150,34 @@ summary(multiple_regression)
 # Commented out for now
 avPlots(multiple_regression, col = alpha("#000000", 0.02))
 ```
+
+## Chi-square Test of Independence
+
+
+The test determines if win rate depends on champion. 
+
+
+Assumptions: 
+- Data is categorical 
+- Observations are independent 
+- Expected Frequency ≥ 5 
+
+
+```{r Champion and Win Test for Independence}
+library(dplyr)
+match_stats <- read.csv("../data/MatchStatsTbl.csv")
+summoner_match <- read.csv("../data/other/SummonerMatchTbl.csv")
+match_stats <- match_stats |>
+ left_join(summoner_match, by = c("SummonerMatchFk" = "SummonerMatchId"))
+champions <- read.csv("../data/keys/ChampionTbl.csv")
+match_stats <- match_stats |>
+ left_join(champions, by = c("ChampionFk" = "ChampionId"))
+
+
+champion_win_table <- table(match_stats$ChampionName, match_stats$Win)
+chi_square_test <- chisq.test(champion_win_table)
+chi_square_test
+```
+
+
+We reject the null hypothesis. There is a statistically significant association between champion choice and match outcome (win/loss).
