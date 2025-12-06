@@ -252,19 +252,18 @@ F-statistic: 8.154e+04 on 4 and 150500 DF,  p-value: &lt; 2.2e-16</code></pre>
 <li>Expected Frequency ≥ 5</li>
 </ul>
 </section>
-<section id="chi-square-test-of-independence-1" class="slide level2 big-code">
-<h2>Chi-square Test of Independence</h2>
-<p>We reject the null hypothesis. There is a statistically significant association between champion choice and match outcome (win/loss).</p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Pearson's Chi-squared test
-
-data:  champion_win_table
-X-squared = 444.22, df = 170, p-value &lt; 2.2e-16</code></pre>
-</div>
-</div>
+<section id="pearson-correlation-tests" class="slide level2 big-code">
+<h2>Pearson Correlation Tests</h2>
+<p>Add Text.</p>
 </section>
+<section id="vision-score-vs-kills" class="slide level2">
+<h2>Vision Score vs Kills</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/vision%20score%20vs%20kills-1.png" width="960" class="r-stretch"></section>
+<section id="vision-score-vs-deaths" class="slide level2">
+<h2>Vision Score vs Deaths</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/vision%20score%20vs%20deaths-1.png" width="960" class="r-stretch"></section>
 <section id="two-way-anova" class="slide level2">
 <h2>Two Way Anova</h2>
 <div class="cell">
@@ -304,14 +303,79 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <p>Use K-Means clustering on specific match stats. We set k = 3 and expect to see the three main styles of play get their own cluster (Jungler, Support, Laner).</p>
 <p>Features: Damage Dealt, Damage Taken, Total Gold, Kills, Deaths, Assists, Vision Score, Dragon Kills, and Baron Kills.</p>
 </section>
-<section id="play-style-cluster-graph" class="slide level2">
-<h2>Play Style Cluster Graph</h2>
-
-<img data-src="DMUU-Presentation_files/figure-revealjs/cluster_graph-1.png" width="960" class="r-stretch"></section>
 <section id="play-style-bar-graph" class="slide level2">
 <h2>Play Style Bar Graph</h2>
 
 <img data-src="DMUU-Presentation_files/figure-revealjs/bar_graph-1.png" width="960" class="r-stretch"></section>
+<section id="cluster-composition-stacked-bar-graph" class="slide level2">
+<h2>Cluster Composition Stacked Bar Graph</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/cluster_graph-1.png" width="960" class="r-stretch"></section>
+<section id="chi-square-test---build-optimizer" class="slide level2">
+<h2>Chi Square Test - Build Optimizer</h2>
+<p>type here</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    1-sample proportions test with continuity correction
+
+data:  ahri_wins out of total_games, null probability 0.5
+X-squared = 27.856, df = 1, p-value = 1.307e-07
+alternative hypothesis: true p is not equal to 0.5
+95 percent confidence interval:
+ 0.5549201 0.6195286
+sample estimates:
+        p 
+0.5875952 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  test_table
+X-squared = 10.806, df = 7, p-value = 0.1473</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  PrimaryKeyStone games winrate
+            &lt;int&gt; &lt;int&gt;   &lt;dbl&gt;
+1            8214    81   0.691
+2            8128    62   0.613
+3            8112   761   0.577
+4            8010     6   0.333</code></pre>
+</div>
+</div>
+</section>
+<section id="fisher-test---build-optimizer" class="slide level2">
+<h2>Fisher Test - Build Optimizer</h2>
+<p>type here</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Fisher's Exact Test for Count Data
+
+data:  test_table
+p-value = 0.1193
+alternative hypothesis: two.sided</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 35 × 3
+    item games winrate
+   &lt;int&gt; &lt;int&gt;   &lt;dbl&gt;
+ 1  3171    74   0.797
+ 2  3041    61   0.787
+ 3  2055    27   0.778
+ 4  3175   112   0.741
+ 5  2421    35   0.714
+ 6  3137    36   0.694
+ 7  3135    63   0.683
+ 8  3111    53   0.679
+ 9  4630    56   0.679
+10  3108    51   0.667
+# ℹ 25 more rows</code></pre>
+</div>
+</div>
+</section>
 <section id="thank-you" class="slide level2 center">
 <h2>Thank You!</h2>
 
@@ -536,80 +600,42 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
       });
     </script>
     
-
     <script>
-
       // htmlwidgets need to know to resize themselves when slides are shown/hidden.
-
       // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
-
       // slide changes (different for each slide format).
-
       (function () {
-
         // dispatch for htmlwidgets
-
         function fireSlideEnter() {
-
           const event = window.document.createEvent("Event");
-
           event.initEvent("slideenter", true, true);
-
           window.document.dispatchEvent(event);
-
         }
-
-    
 
         function fireSlideChanged(previousSlide, currentSlide) {
-
           fireSlideEnter();
 
-    
-
           // dispatch for shiny
-
           if (window.jQuery) {
-
             if (previousSlide) {
-
               window.jQuery(previousSlide).trigger("hidden");
-
             }
-
             if (currentSlide) {
-
               window.jQuery(currentSlide).trigger("shown");
-
             }
-
           }
-
         }
-
-    
 
         // hookup for slidy
-
         if (window.w3c_slidy) {
-
           window.w3c_slidy.add_observer(function (slide_num) {
-
             // slide_num starts at position 1
-
             fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
-
           });
-
         }
 
-    
-
       })();
-
     </script>
-
-    
 
     <script id="quarto-html-after-body" type="application/javascript">
       window.document.addEventListener("DOMContentLoaded", function (event) {
