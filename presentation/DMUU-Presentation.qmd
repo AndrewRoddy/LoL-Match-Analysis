@@ -229,11 +229,10 @@ Assumptions:
 
 
 
-## Chi-square Test of Independence {.big-code}
-We reject the null hypothesis. There is a statistically significant association between champion choice and match outcome (win/loss).
+## Pearson Correlation Tests {.big-code}
+Add Text.
 
-```{r Champion and Win Test for Independence}
-library(dplyr)
+```{r Pearson Correlation Tests}
 match_stats <- read.csv("../data/MatchStatsTbl.csv")
 summoner_match <- read.csv("../data/other/SummonerMatchTbl.csv")
 match_stats <- match_stats |>
@@ -242,10 +241,54 @@ champions <- read.csv("../data/keys/ChampionTbl.csv")
 match_stats <- match_stats |>
  left_join(champions, by = c("ChampionFk" = "ChampionId"))
 
+# Vision Score vs Kills
 
-champion_win_table <- table(match_stats$ChampionName, match_stats$Win)
-chi_square_test <- chisq.test(champion_win_table)
-chi_square_test
+cor_test_kills <- cor.test(match_stats$visionScore,
+                           match_stats$kills,
+                           method = "pearson")
+
+# Scatterplot with regression line
+vscore_kills_plot <- ggplot(match_stats, aes(x = visionScore, y = kills)) +
+  geom_point(alpha = 0.5, color = "steelblue") +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(
+    title = "Vision Score vs Kills",
+    subtitle = paste0("r = ", round(cor_test_kills$estimate, 3),
+                      ", p = ", format.pval(cor_test_kills$p.value,
+                                            digits = 3)),
+    x = "Vision Score",
+    y = "Kills"
+  ) +
+  theme_minimal()
+
+# Vision Score vs Deaths
+cor_test_deaths <- cor.test(match_stats$visionScore,
+                            match_stats$deaths,
+                            method = "pearson")
+
+# Scatterplot with regression line
+vscore_deaths_plot <- ggplot(match_stats, aes(x = visionScore, y = deaths)) +
+  geom_point(alpha = 0.5, color = "coral") +
+  geom_smooth(method = "lm", se = TRUE, color = "darkred") +
+  labs(
+    title = "Vision Score vs Deaths",
+    subtitle = paste0("r = ", round(cor_test_deaths$estimate, 3),
+                      ", p = ", format.pval(cor_test_deaths$p.value,
+                                            digits = 3)),
+    x = "Vision Score",
+    y = "Deaths"
+  ) +
+  theme_minimal()
+```
+
+## Vision Score vs Kills
+``` {r vision score vs kills}
+vscore_kills_plot
+```
+
+## Vision Score vs Deaths
+``` {r vision score vs deaths}
+vscore_deaths_plot
 ```
 
 ## Two Way Anova
@@ -454,35 +497,26 @@ Features: Damage Dealt, Damage Taken, Total Gold, Kills, Deaths, Assists, Vision
 ```{r Play Style Clustering}
 library(ggplot2)
 library(reshape2)
-features <- match_stats[, c("DmgDealt", "DmgTaken",
-                           "TotalGold", "kills", "deaths", "assists",
-                           "visionScore", "DragonKills", "BaronKills")]
+library(dplyr)
+library(tidyr)
+library(scales)
+
+cluster_match_stats <- match_stats |>
+  filter(Lane != "NONE")
+
+features <- cluster_match_stats[, c("DmgDealt", "DmgTaken",
+                            "TotalGold", "kills", "deaths", "assists",
+                            "visionScore", "DragonKills", "BaronKills")]
 
 
 #Scale features for clustering (Necessary when measuring distance)
 scaled_features <- scale(features)
 
-
-best <- NULL
-best_wss <- Inf
+km <- kmeans(scaled_features, centers = 3, nstart = 25)
 
 
-for (i in 1:10){
- km_tmp <- kmeans(scaled_features, centers = 3, nstart = 25)
- if (km_tmp$tot.withinss < best_wss) {
-   best = km_tmp
-   best_wss = km_tmp$tot.withinss
- }
-}
+cluster_match_stats$cluster <- km$cluster
 
-
-km <- best   # optimal run
-
-
-match_stats$cluster <- km$cluster
-
-
-pca <- prcomp(scaled_features)
 
 
 centers <- as.data.frame(km$centers)
@@ -491,36 +525,71 @@ centers$cluster <- rownames(centers)
 
 centers_melt <- melt(centers, id = "cluster")
 
-cluster_graph <- ggplot(data.frame(pca$x, cluster = factor(km$cluster)),
-       aes(x = PC1, y = PC2, color = cluster)) +
-  geom_point(alpha = 0.7) +
-  theme_minimal() +
-  labs(title = "Player Style Clusters (PCA Projection)")
-
-
-bar_graph <- ggplot(centers_melt, aes(x = variable, y = value, fill = cluster)) +
+play_style_bar_graph <- ggplot(
+  centers_melt,
+  aes(x = variable, y = value, fill = cluster)
+) +
   geom_bar(stat = "identity", position = "dodge") +
   theme_minimal() +
   labs(title = "Cluster Centers (Scaled Values)",
-        x = "Feature", y = "Scaled Value") +
+       x = "Feature", y = "Scaled Value") +
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
+
+# Prepare table
+cluster_role_percent <- cluster_match_stats |>
+  mutate(
+    LaneGroup = case_when(
+      Lane %in% c("TOP", "MIDDLE", "BOTTOM") ~ "Laner",
+      Lane == "JUNGLE" ~ "Jungle",
+      Lane == "SUPPORT" ~ "Support",
+      TRUE ~ Lane
+    )
+  ) |>
+  group_by(cluster, LaneGroup) |>
+  summarise(count = n(), .groups = "drop") |>
+  group_by(cluster) |>  # Regroup by cluster only
+  mutate(percent = 100 * count / sum(count)) |>
+  ungroup() |>
+  select(cluster, LaneGroup, percent)
+
+# Make stacked bar chart
+cluster_comp_stacked_bar_graph <- ggplot(cluster_role_percent, 
+                            aes(x = factor(cluster), y = percent,
+                                fill = LaneGroup)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c(
+    "Laner" = "#E69F00",      # Orange
+    "Jungle" = "#009E73",    # Green
+    "Support" = "#9E4CBF"     # Purple
+  )) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  labs(
+    title = "Lane Composition per Cluster",
+    x = "Cluster",
+    y = "Percentage",
+    fill = "Lane Group"
+  ) +
+  theme_minimal()
+
+# Pivot to wide format table
+cluster_role_percent <- cluster_role_percent |>
+  pivot_wider(
+    names_from = LaneGroup,
+    values_from = percent,
+    values_fill = 0
+  )
 ```
-
-
-
-## Play Style Cluster Graph
-```{r cluster_graph}
-cluster_graph
-```
-
 
 
 ## Play Style Bar Graph
 ```{r bar_graph}
-bar_graph
+play_style_bar_graph
 ```
 
-
+## Cluster Composition Stacked Bar Graph
+```{r cluster_graph}
+cluster_comp_stacked_bar_graph
+```
 
 ## Chi Square Test - Build Optimizer
 

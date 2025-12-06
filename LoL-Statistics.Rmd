@@ -261,46 +261,80 @@ probability <- odds / (1 + odds)
 probability
 ```
 
-```{r Champion and Win Test for Independence}
-tab <- table(match_stats$ChampionName, match_stats$Win)
-chi_square_test <- chisq.test(tab)
-chi_square_test
+```{r Pearson Correlation Tests}
+# Vision Score vs Kills
+
+cor_test_kills <- cor.test(match_stats$visionScore,
+                           match_stats$kills,
+                           method = "pearson")
+
+cat("Pearson Correlation Test Results:\n")
+print(cor_test_kills)
+cat("\n")
+
+# Scatterplot with regression line
+plot1 <- ggplot(match_stats, aes(x = visionScore, y = kills)) +
+  geom_point(alpha = 0.5, color = "steelblue") +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(
+    title = "Vision Score vs Kills",
+    subtitle = paste0("r = ", round(cor_test_kills$estimate, 3),
+                      ", p = ", format.pval(cor_test_kills$p.value,
+                                            digits = 3)),
+    x = "Vision Score",
+    y = "Kills"
+  ) +
+  theme_minimal()
+
+print(plot1)
+
+# Vision Score vs Deaths
+cor_test_deaths <- cor.test(match_stats$visionScore,
+                            match_stats$deaths,
+                            method = "pearson")
+
+cat("Pearson Correlation Test Results:\n")
+print(cor_test_deaths)
+cat("\n")
+
+# Scatterplot with regression line
+plot2 <- ggplot(match_stats, aes(x = visionScore, y = deaths)) +
+  geom_point(alpha = 0.5, color = "coral") +
+  geom_smooth(method = "lm", se = TRUE, color = "darkred") +
+  labs(
+    title = "Vision Score vs Deaths",
+    subtitle = paste0("r = ", round(cor_test_deaths$estimate, 3),
+                      ", p = ", format.pval(cor_test_deaths$p.value,
+                                            digits = 3)),
+    x = "Vision Score",
+    y = "Deaths"
+  ) +
+  theme_minimal()
+
+print(plot2)
 ```
 
 
 ```{r Play Style Clustering}
 library(ggplot2)
-install.packages("reshape2")
 library(reshape2)
-features <- match_stats[, c("DmgDealt", "DmgTaken",
-                           "TotalGold", "kills", "deaths", "assists",
-                           "visionScore", "DragonKills", "BaronKills")]
+library(tidyr)
+cluster_match_stats <- match_stats |>
+  filter(Lane != "NONE")
+
+features <- cluster_match_stats[, c("DmgDealt", "DmgTaken",
+                            "TotalGold", "kills", "deaths", "assists",
+                            "visionScore", "DragonKills", "BaronKills")]
 
 
 #Scale features for clustering (Necessary when measuring distance)
 scaled_features <- scale(features)
 
-
-best <- NULL
-best_wss <- Inf
+km <- kmeans(scaled_features, centers = 3, nstart = 25)
 
 
-for (i in 1:10){
- km_tmp <- kmeans(scaled_features, centers = 3, nstart = 25)
- if (km_tmp$tot.withinss < best_wss) {
-   best = km_tmp
-   best_wss = km_tmp$tot.withinss
- }
-}
+cluster_match_stats$cluster <- km$cluster
 
-
-km <- best   # optimal run
-
-
-match_stats$cluster <- km$cluster
-
-
-pca <- prcomp(scaled_features)
 
 
 centers <- as.data.frame(km$centers)
@@ -308,13 +342,6 @@ centers$cluster <- rownames(centers)
 
 
 centers_melt <- melt(centers, id = "cluster")
-
-cluster_graph <- ggplot(data.frame(pca$x, cluster = factor(km$cluster)),
-                        aes(x = PC1, y = PC2, color = cluster)) +
-  geom_point(alpha = 0.7) +
-  theme_minimal() +
-  labs(title = "Player Style Clusters (PCA Projection)")
-
 
 bar_graph <- ggplot(
   centers_melt,
@@ -326,8 +353,61 @@ bar_graph <- ggplot(
        x = "Feature", y = "Scaled Value") +
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
 
-print(cluster_graph)
 print(bar_graph)
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scales)
+
+# Prepare table
+cluster_role_percent <- cluster_match_stats |>
+  mutate(
+    LaneGroup = case_when(
+      Lane %in% c("TOP", "MIDDLE", "BOTTOM") ~ "Laner",
+      Lane == "JUNGLE" ~ "Jungle",
+      Lane == "SUPPORT" ~ "Support",
+      TRUE ~ Lane
+    )
+  ) |>
+  group_by(cluster, LaneGroup) |>
+  summarise(count = n(), .groups = "drop") |>
+  group_by(cluster) |>  # Regroup by cluster only
+  mutate(percent = 100 * count / sum(count)) |>
+  ungroup() |>
+  select(cluster, LaneGroup, percent)
+
+# Make stacked bar chart
+stacked_bar_graph <- ggplot(cluster_role_percent, 
+                            aes(x = factor(cluster), y = percent,
+                                fill = LaneGroup)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c(
+    "Laner" = "#E69F00",      # Orange
+    "Jungle" = "#009E73",    # Green
+    "Support" = "#9E4CBF"     # Purple
+  )) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  labs(
+    title = "Lane Composition per Cluster",
+    x = "Cluster",
+    y = "Percentage",
+    fill = "Lane Group"
+  ) +
+  theme_minimal()
+
+# Show the plot
+stacked_bar_graph
+
+# Pivot to wide format
+cluster_role_percent_wide <- cluster_role_percent |>
+  pivot_wider(
+    names_from = LaneGroup,
+    values_from = percent,
+    values_fill = 0
+  )
+
+cluster_role_percent_wide
 ```
 
 ```{r Build Optimizer}
