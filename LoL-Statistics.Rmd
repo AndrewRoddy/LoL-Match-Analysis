@@ -307,7 +307,7 @@ stacked_bar_graph <- ggplot(cluster_role_percent,
   geom_bar(stat = "identity") +
   scale_fill_manual(values = c(
     "Laner" = "#E69F00",      # Orange
-    "Jungler" = "#009E73",    # Green
+    "Jungle" = "#009E73",    # Green
     "Support" = "#9E4CBF"     # Purple
   )) +
   scale_y_continuous(labels = percent_format(scale = 1)) +
