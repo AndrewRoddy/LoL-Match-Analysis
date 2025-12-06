@@ -1,59 +1,136 @@
 ---
-title: "LoL-Statistics"
-author: "Andrew Roddy"
-date: "2025-11-24"
-output: pdf_document
+title: "League of Legends Match Analysis"
+author: "Logan Senol, Caleb Stanberry, Andrew Roddy"
+# format: html # Test Mode
+format: 
+    revealjs: # Present Mode
+        theme: [default, styles.scss]
+        auto-stretch: true
 ---
 
-### MatchStatsTbl.csv
+## League of Legends Crash Course {.center}
 
-Import code and print off column and row count
+What is League of Legends?
+
+
+![Also known as "League" and "LoL".](img/lol-logo.png){width="50%"}
+
+
+
+## Components 
+
+
+Six main components
+
+ - champions
+ - teams
+ - towers
+ - minions
+ - gold
+ - nexus
+
+
+
+## Champions{.center}
+Before the game each player selects one of the 172 champions. Each champion has unique abilities and stats.
+
+![](img/champions.png){width="70%"}
+
+
+## Teams {.center}
+Two teams compete against eachother with 5 players on each team. Each player chooses an different role.
+
+![](img/roles.png){width="70%"}
+
+
+
+## The Nexus {.center}
+Destroy the opposing teams nexus to win the game. There are problems along the way.
+
+![](img/nexus.png){width="15%"}
+
+
+
+## Towers {.center}
+Each team has 9 towers on their side of the map. They must be destroyed to access the Nexus but if the opponent gets too close they attack.
+
+![](img/tower-map.png){width="50%" right-margin="100px"}
+&nbsp; <!-- Adds a space between images -->
+&nbsp;
+![](img/tower.png){width="15%"}
+
+
+
+## Minions {.center}
+
+Luckily minions can be used to distract the towers from attacking the players. The minions also drop gold when eliminated.
+
+![](img/minion.png){width="27%"}
+![](img/minion-hammer.png){width="27%"}
+![](img/minion-seige.png){width="27%"}
+
+
+
+## Gold {.center}
+
+Gold can be used to purchase items which increase the stats of the champions.
+
+![](img/gold-pile.png){width="25%"}
+
+
+
+## Data Size {.big-code}
+Our analysis uses data from 150,000 matches of player data and 68,000 matches of team data. This means sometimes we will use screenshots from our code instead of running it live.
+
 ```{r import}
-match_stats <- read.csv("data/MatchStatsTbl.csv")
+#| echo: false
+match_stats <- read.csv("../data/MatchStatsTbl.csv")
 row_count <- nrow(match_stats)
 col_count <- ncol(match_stats)
-cat("There are", row_count, "rows.\n")
-cat("There are", col_count, "columns.\n")
+cat("Player Data:\nThere are", row_count, "rows.\n")
+cat("There are", col_count, "columns.\n\n")
+```
 
-team_stats <- read.csv("data/TeamMatchTbl.csv")
+&nbsp;
+
+```{r import2}
+team_stats <- read.csv("../data/TeamMatchTbl.csv")
 row_count2 <- nrow(team_stats)
 col_count2 <- ncol(team_stats)
-cat("There are", row_count2, "rows.\n")
+cat("Team Data:\nThere are", row_count2, "rows.\n")
 cat("There are", col_count2, "columns.\n")
 
 library(dplyr)
 
-summoner_match <- read.csv("data/other/SummonerMatchTbl.csv")
+summoner_match <- read.csv("../data/other/SummonerMatchTbl.csv")
 match_stats <- match_stats |>
   left_join(summoner_match, by = c("SummonerMatchFk" = "SummonerMatchId"))
 
-champions <- read.csv("data/keys/ChampionTbl.csv")
+champions <- read.csv("../data/keys/ChampionTbl.csv")
 match_stats <- match_stats |>
-  left_join(champions, by = c("ChampionFk" = "ChampionId"))
+left_join(champions, by = c("ChampionFk" = "ChampionId"))
 ```
 
+
+
+## Multiple Regression
 ```{r clean}
 
 # Removes unimportant columns of data
 match_stats[, c(
+  "item1", "item2", "item3", "item4", "item5", "item6",
   "PrimarySlot1", "PrimarySlot2", "PrimarySlot3",
   "SecondarySlot1", "SecondarySlot2",
   "SummonerSpell1", "SummonerSpell2"
 )] <- list(NULL)
-
-names <- colnames(match_stats)
-print(names)
 ```
 
-Multiple regression to test if 
+Multiple regression to test if we can predict the damage a player has dealt knowing the damage they have taken, the gold they had, the minions they eliminated, and the amount of damage they did to turrets.
 ```{r sort and cycle}
 
 library(ggplot2)
 library(scales)
 library(car)
-
-# Generates subset of the data
-
 
 # make simple regression model
 multiple_regression <- lm(DmgDealt ~
@@ -62,6 +139,19 @@ multiple_regression <- lm(DmgDealt ~
 )
 # Print off if this matters or not
 summary(multiple_regression)
+```
+
+
+
+## Partial Regression {.big-code}
+
+The next graphs will use Partial Regression.
+This uses the previous multiple regression claculations but holds all other variables constant.
+Holding all other variable's constant allows us to use a 2d graph to compare variables impact on eachother.
+
+
+## Partial Regression {.big-code}
+```{r partial regression dmgdealt vs dmgtaken }
 
 # Creates the variable plots
 #000000 point color
@@ -75,6 +165,14 @@ avPlots(
   xlim = c(-35000, 35000),
   ylim = c(-35000, 35000)
 )
+```
+This graph compares Damage Dealt with Damage Taken aquired throughout the game.
+Takeaway: Both having a positive relationship makes sense as hitting sombody usually results in getting hit back.
+
+
+
+## Partial Regression {.big-code}
+```{r partial regression dmgdealt vs totalgold }
 avPlots(
   multiple_regression,
   "TotalGold",
@@ -82,6 +180,14 @@ avPlots(
   xlim = c(-35000, 35000),
   ylim = c(-35000, 35000)
 )
+```
+This graph compares Damage Dealt with Total Gold aquired throughout the game.
+Takeaway: Gold allows users to purchase items that increase damage. More gold meaning more damage dealt makes sense.
+
+
+
+## Partial Regression {.big-code}
+```{r partial regression dmgdealt vs minionskilled }
 avPlots(
   multiple_regression,
   "MinionsKilled",
@@ -89,6 +195,14 @@ avPlots(
   xlim = c(-35000, 35000),
   ylim = c(-35000, 35000)
 )
+```
+This graph compares Damage Dealt with Minions Killed during the game.
+Takeaway: Support players are intended to kill minions and not deal damage. This makes sense.
+
+
+
+## Partial Regression {.big-code}
+```{r partial regression dmgdealt vs towersdowned }
 avPlots(
   multiple_regression,
   "TurretDmgDealt",
@@ -97,7 +211,44 @@ avPlots(
   ylim = c(-35000, 35000)
 )
 ```
+Note the different graph scales and TurretDmgDealt is meant to be Turret's Downed.
+Takeway : Players that destroy towers are less likely to deal a lot of damage.
 
+
+## Chi-square Test of Independence {.big-code}
+
+
+The test determines if win rate depends on champion. 
+
+
+Assumptions: 
+
+ - Data is categorical 
+ - Observations are independent 
+ - Expected Frequency ≥ 5 
+
+
+
+## Chi-square Test of Independence {.big-code}
+We reject the null hypothesis. There is a statistically significant association between champion choice and match outcome (win/loss).
+
+```{r Champion and Win Test for Independence}
+library(dplyr)
+match_stats <- read.csv("../data/MatchStatsTbl.csv")
+summoner_match <- read.csv("../data/other/SummonerMatchTbl.csv")
+match_stats <- match_stats |>
+ left_join(summoner_match, by = c("SummonerMatchFk" = "SummonerMatchId"))
+champions <- read.csv("../data/keys/ChampionTbl.csv")
+match_stats <- match_stats |>
+ left_join(champions, by = c("ChampionFk" = "ChampionId"))
+
+
+champion_win_table <- table(match_stats$ChampionName, match_stats$Win)
+chi_square_test <- chisq.test(champion_win_table)
+chi_square_test
+```
+
+## Two Way Anova
 ```{r 2WayANOVA}
 library(ggplot2)
 library(dplyr)
@@ -211,66 +362,97 @@ filtered$rune <- factor(filtered$rune, levels = keystone_order)
 
 #Loop over lanes and create graph for each
 lanes <- unique(filtered$Lane)
-for (lane in lanes){
+```
 
-  df_lane <- filtered[filtered$Lane == lane, ]
+
+
+## Top - Two Way Anova
+```{r tukey-top}
+df_lane <- filtered[filtered$Lane == "TOP", ]
   plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
     geom_boxplot(alpha = 0.8, outlier.shape = NA) +
     scale_fill_manual(values = rune_colors) +
     xlab("Rune Stone") +
     ylab("Damage Dealt") +
-    ggtitle(lane) +
+    ggtitle("TOP") +
     theme(axis.text.x = element_blank())
 
-  print(plot)
-}
+print(plot)
 ```
 
-```{r Team Logistic Regression}
-#Logistic Regression on a bunch of team Data
-blue_barons <- team_stats$BlueBaronKills
-blue_dragons <- team_stats$BlueDragonKills
-blue_heralds <- team_stats$BlueRiftHeraldKills
-blue_kills <- team_stats$BlueKills
 
-model <- glm(
-  BlueWin ~ blue_barons + blue_dragons + blue_heralds + blue_kills,
-  data = team_stats,
-  family = binomial
-)
 
-summary(model)
-# Results give us a legit function,
-# need to convert to individual winrate multipliers
-odd_mults <- exp(coef(model)[-1])
-odd_mults
+## Jungle - Two Way Anova
+```{r tukey-jungle}
+df_lane <- filtered[filtered$Lane == "JUNGLE", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("JUNGLE") +
+    theme(axis.text.x = element_blank())
 
-#Probability Conversion = Mults/1+mult Can build predictor model off of this
-winrate <- 0.5 #50% chance of winning a game
-barons <- -2
-dragons <- -1
-heralds <- 1
-kills <- 5
-odds <- winrate / (1 - winrate) *
-  odd_mults["blue_barons"]^barons *
-  odd_mults["blue_dragons"]^dragons *
-  odd_mults["blue_heralds"]^heralds *
-  odd_mults["blue_kills"]^kills
-
-probability <- odds / (1 + odds)
-probability
+print(plot)
 ```
 
-```{r Champion and Win Test for Independence}
-tab <- table(match_stats$ChampionName, match_stats$Win)
-chi_square_test <- chisq.test(tab)
-chi_square_test
+
+
+## Middle - Two Way Anova
+```{r tukey-middle}
+df_lane <- filtered[filtered$Lane == "MIDDLE", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("MIDDLE") +
+    theme(axis.text.x = element_blank())
+
+print(plot)
 ```
 
+
+
+## Bottom - Two Way Anova
+```{r tukey-bottom}
+df_lane <- filtered[filtered$Lane == "BOTTOM", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("BOTTOM") +
+    theme(axis.text.x = element_blank())
+
+print(plot)
+```
+
+
+
+## Support - Two Way Anova
+```{r tukey-support}
+df_lane <- filtered[filtered$Lane == "SUPPORT", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("SUPPORT") +
+    theme(axis.text.x = element_blank())
+
+print(plot)
+```
+
+
+
+## Play Style Clustering
+Use K-Means clustering on specific match stats. We set k = 3 and expect to see the three main styles of play get their own cluster (Jungler, Support, Laner).
+
+Features: Damage Dealt, Damage Taken, Total Gold, Kills, Deaths, Assists, Vision Score, Dragon Kills, and Baron Kills.
 
 ```{r Play Style Clustering}
 library(ggplot2)
-install.packages("reshape2")
 library(reshape2)
 features <- match_stats[, c("DmgDealt", "DmgTaken",
                            "TotalGold", "kills", "deaths", "assists",
@@ -310,25 +492,39 @@ centers$cluster <- rownames(centers)
 centers_melt <- melt(centers, id = "cluster")
 
 cluster_graph <- ggplot(data.frame(pca$x, cluster = factor(km$cluster)),
-                        aes(x = PC1, y = PC2, color = cluster)) +
+       aes(x = PC1, y = PC2, color = cluster)) +
   geom_point(alpha = 0.7) +
   theme_minimal() +
   labs(title = "Player Style Clusters (PCA Projection)")
 
 
-bar_graph <- ggplot(
-  centers_melt,
-  aes(x = variable, y = value, fill = cluster)
-) +
+bar_graph <- ggplot(centers_melt, aes(x = variable, y = value, fill = cluster)) +
   geom_bar(stat = "identity", position = "dodge") +
   theme_minimal() +
   labs(title = "Cluster Centers (Scaled Values)",
-       x = "Feature", y = "Scaled Value") +
+        x = "Feature", y = "Scaled Value") +
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
-
-print(cluster_graph)
-print(bar_graph)
 ```
+
+
+
+## Play Style Cluster Graph
+```{r cluster_graph}
+cluster_graph
+```
+
+
+
+## Play Style Bar Graph
+```{r bar_graph}
+bar_graph
+```
+
+
+
+## Chi Square Test - Build Optimizer
+
+type here
 
 ```{r Build Optimizer}
 library(dplyr)
@@ -369,7 +565,15 @@ ahri_keystone_summary <- ahri_data |>
   arrange(desc(winrate))
 
 print(ahri_keystone_summary)
+```
 
+
+
+## Fisher Test - Build Optimizer
+
+type here
+
+```{r risher test}
 # Is difference between them signifigant
 test_table <- table(ahri_data$PrimaryKeyStone, ahri_data$Win)
 fisher.test(test_table) #Alternative chi^2 because of some runes low sample size
@@ -406,3 +610,13 @@ ahri_item_summary <- ahri_item_data |>
 # p rint(ahri_item_summary, n = nrow(ahri_item_summary))
 print(ahri_item_summary)
 ```
+
+
+
+## Thank You! {.center}
+![](img/league-logo.png){width="70%"}
+
+
+
+## Questions? {.center}
+

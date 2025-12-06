@@ -143,16 +143,76 @@ summary(multiple_regression)
 
 
 
-## Multiple Regression Graph {.big-code}
-```{r multiple regression graph}
+## Partial Regression {.big-code}
+
+The next graphs will use Partial Regression.
+This uses the previous multiple regression claculations but holds all other variables constant.
+Holding all other variable's constant allows us to use a 2d graph to compare variables impact on eachother.
+
+
+## Partial Regression {.big-code}
+```{r partial regression dmgdealt vs dmgtaken }
+
 # Creates the variable plots
 #000000 point color
 #0.01 : 1 percent opacity
 
-# Commented out for now
-avPlots(multiple_regression, col = alpha("#000000", 0.02))
+# Partial Regression
+avPlots(
+  multiple_regression,
+  "DmgTaken",
+  col = alpha("#000000", 0.04),
+  xlim = c(-35000, 35000),
+  ylim = c(-35000, 35000)
+)
 ```
+This graph compares Damage Dealt with Damage Taken aquired throughout the game.
+Takeaway: Both having a positive relationship makes sense as hitting sombody usually results in getting hit back.
 
+
+
+## Partial Regression {.big-code}
+```{r partial regression dmgdealt vs totalgold }
+avPlots(
+  multiple_regression,
+  "TotalGold",
+  col = alpha("#000000", 0.04),
+  xlim = c(-35000, 35000),
+  ylim = c(-35000, 35000)
+)
+```
+This graph compares Damage Dealt with Total Gold aquired throughout the game.
+Takeaway: Gold allows users to purchase items that increase damage. More gold meaning more damage dealt makes sense.
+
+
+
+## Partial Regression {.big-code}
+```{r partial regression dmgdealt vs minionskilled }
+avPlots(
+  multiple_regression,
+  "MinionsKilled",
+  col = alpha("#000000", 0.04),
+  xlim = c(-35000, 35000),
+  ylim = c(-35000, 35000)
+)
+```
+This graph compares Damage Dealt with Minions Killed during the game.
+Takeaway: Support players are intended to kill minions and not deal damage. This makes sense.
+
+
+
+## Partial Regression {.big-code}
+```{r partial regression dmgdealt vs towersdowned }
+avPlots(
+  multiple_regression,
+  "TurretDmgDealt",
+  col = alpha("#000000", 0.1),
+  xlim = c(-10, 10),
+  ylim = c(-35000, 35000)
+)
+```
+Note the different graph scales and TurretDmgDealt is meant to be Turret's Downed.
+Takeway : Players that destroy towers are less likely to deal a lot of damage.
 
 
 ## Chi-square Test of Independence {.big-code}
@@ -551,12 +611,11 @@ ahri_item_summary <- ahri_item_data |>
 print(ahri_item_summary)
 ```
 
+
+
 ## Thank You! {.center}
 ![](img/league-logo.png){width="70%"}
 
+
+
 ## Questions? {.center}
-
-
-
-
-
