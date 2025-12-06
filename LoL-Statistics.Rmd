@@ -278,38 +278,59 @@ bar_graph <- ggplot(
 
 print(bar_graph)
 
-cluster_role_percent <- cluster_match_stats |>
-  # Remove rows where Lane = "None"
-  filter(Lane != "NONE") |>
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(scales)
 
-  # Rename and group lane roles
+# Prepare table
+cluster_role_percent <- cluster_match_stats |>
   mutate(
     LaneGroup = case_when(
       Lane %in% c("TOP", "MIDDLE", "BOTTOM") ~ "Laner",
       Lane == "JUNGLE" ~ "Jungle",
       Lane == "SUPPORT" ~ "Support",
-      TRUE ~ Lane   # fallback if unexpected values appear
+      TRUE ~ Lane
     )
   ) |>
-
-  # Count by cluster and lane group
   group_by(cluster, LaneGroup) |>
-  summarise(count = n()) |>
-
-  # Convert to percent inside each cluster
+  summarise(count = n(), .groups = "drop") |>
+  group_by(cluster) |>  # Regroup by cluster only
   mutate(percent = 100 * count / sum(count)) |>
+  ungroup() |>
+  select(cluster, LaneGroup, percent)
 
-  # Keep important information
-  select(cluster, LaneGroup, percent) |>
+# Make stacked bar chart
+stacked_bar_graph <- ggplot(cluster_role_percent, 
+                            aes(x = factor(cluster), y = percent,
+                                fill = LaneGroup)) +
+  geom_bar(stat = "identity") +
+  scale_fill_manual(values = c(
+    "Laner" = "#E69F00",      # Orange
+    "Jungler" = "#009E73",    # Green
+    "Support" = "#9E4CBF"     # Purple
+  )) +
+  scale_y_continuous(labels = percent_format(scale = 1)) +
+  labs(
+    title = "Lane Composition per Cluster",
+    x = "Cluster",
+    y = "Percentage",
+    fill = "Lane Group"
+  ) +
+  theme_minimal()
 
-  # Pivot to wide format
+# Show the plot
+stacked_bar_graph
+
+# Pivot to wide format
+cluster_role_percent_wide <- cluster_role_percent |>
   pivot_wider(
     names_from = LaneGroup,
     values_from = percent,
     values_fill = 0
   )
 
-cluster_role_percent
+cluster_role_percent_wide
 ```
 
 ```{r Build Optimizer}
