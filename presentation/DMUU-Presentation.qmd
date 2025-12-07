@@ -80,7 +80,8 @@ Gold can be used to purchase items which increase the stats of the champions.
 
 
 ## Data Size {.big-code}
-Our analysis uses data from 150,000 matches of player data and 68,000 matches of team data. This means sometimes we will use screenshots from our code instead of running it live.
+Our analysis uses data from 150,000 matches of player data and 68,000 matches of team data. 
+This is why our P-values may be very small and why there will be a lot of data points in the scatter plots.
 
 ```{r import}
 #| echo: false
@@ -91,7 +92,8 @@ cat("Player Data:\nThere are", row_count, "rows.\n")
 cat("There are", col_count, "columns.\n\n")
 ```
 
-&nbsp;
+<!-- Basically \n -->
+&nbsp; 
 
 ```{r import2}
 team_stats <- read.csv("../data/TeamMatchTbl.csv")
@@ -112,8 +114,6 @@ left_join(champions, by = c("ChampionFk" = "ChampionId"))
 ```
 
 
-
-## Multiple Regression
 ```{r clean}
 
 # Removes unimportant columns of data
@@ -125,104 +125,17 @@ match_stats[, c(
 )] <- list(NULL)
 ```
 
-Multiple regression to test if we can predict the damage a player has dealt knowing the damage they have taken, the gold they had, the minions they eliminated, and the amount of damage they did to turrets.
-```{r sort and cycle}
-## Multiple Regression
 
-library(ggplot2)
-library(scales)
-library(car)
+## Multiple Linear Regression
 
-# make simple regression model
-multiple_regression <- lm(DmgDealt ~
-    DmgTaken + TotalGold + MinionsKilled + TurretDmgDealt,
-  data = match_stats
-)
-# Print off if this matters or not
-summary(multiple_regression)
-```
+We use multiple linear regression to find the factors that influence damage dealt by players. 
+
+This test finds the relationship between damage dealt and the predictors damage taken, total gold, minions killed, and towers destroyed (turret damage dealt). This test allows us to see the combined and individual effects of the continuous variables. 
 
 
+## Multiple Linear Regression Conclusion
 
-## Partial Regression {.big-code}
-
-The next graphs will use Partial Regression.
-This uses the previous multiple regression claculations but holds all other variables constant.
-Holding all other variable's constant allows us to use a 2d graph to compare variables impact on eachother.
-
-
-## Partial Regression {.big-code}
-```{r partial regression dmgdealt vs dmgtaken }
-
-# Creates the variable plots
-#000000 point color
-#0.01 : 1 percent opacity
-
-# Partial Regression
-avPlots(
-  multiple_regression,
-  "DmgTaken",
-  col = alpha("#000000", 0.04),
-  xlim = c(-35000, 35000),
-  ylim = c(-35000, 35000)
-)
-```
-Compares Damage Dealt with Damage Taken.
-
-## Partial Regression {.big-code}
-Takeaway: Both having a positive relationship makes sense as hitting sombody usually results in getting hit back.
-
-
-
-## Partial Regression {.big-code}
-```{r partial regression dmgdealt vs totalgold }
-avPlots(
-  multiple_regression,
-  "TotalGold",
-  col = alpha("#000000", 0.04),
-  xlim = c(-35000, 35000),
-  ylim = c(-35000, 35000)
-)
-```
-Compares Damage Dealt with Total Gold aquired.
-
-## Partial Regression {.big-code}
-Takeaway: Gold allows users to purchase items that increase damage. More gold meaning more damage dealt makes sense.
-
-
-
-## Partial Regression {.big-code}
-```{r partial regression dmgdealt vs minionskilled }
-avPlots(
-  multiple_regression,
-  "MinionsKilled",
-  col = alpha("#000000", 0.04),
-  xlim = c(-35000, 35000),
-  ylim = c(-35000, 35000)
-)
-```
-Compares Damage Dealt with Minions Killed.
-
-## Partial Regression {.big-code}
-Takeaway: Support players are intended to kill minions and not deal damage. This makes sense.
-
-
-
-## Partial Regression {.big-code}
-```{r partial regression dmgdealt vs towersdowned }
-avPlots(
-  multiple_regression,
-  "TurretDmgDealt",
-  col = alpha("#000000", 0.1),
-  xlim = c(-10, 10),
-  ylim = c(-35000, 35000)
-)
-```
-Note the different graph scales. Also TurretDmgDealt means Turret's Downed.
-
-## Partial Regression {.big-code}
-Takeaway : Players that destroy towers are less likely to deal a lot of damage.
-
+From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
 
 ## Chi-square Test of Independence {.big-code}
 
