@@ -1,148 +1,241 @@
 ---
 title: "LoL-Statistics"
-author: "Andrew Roddy"
+author: "Andrew Roddy, Caleb Stanberry, Logan Senol"
 date: "2025-11-24"
 output: pdf_document
+always_allow_html: true
 ---
 
-### MatchStatsTbl.csv
+```{r setup, include=FALSE}
+# Hides all warnings and wall package messages for entire document
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+```
 
-Import code and print off column and row count
+``` {r libraries}
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(car)
+library(sandwich)
+library(lmtest)
+library(plotly)
+library(reshape2)
+library(tidyr)
+```
+
+## League of Legends Crash Course
+
+What is League of Legends?
+
+## Components 
+
+
+Six main components
+
+ - champions
+ - teams
+ - towers
+ - minions
+ - gold
+ - nexus
+
+
+## Champions
+Before the game each player selects one of the 172 champions. Each champion has unique abilities and stats.
+
+
+## Teams
+Two teams compete against eachother with 5 players on each team. Each player chooses an different role.
+
+
+## The Nexus
+Destroy the opposing teams nexus to win the game. There are problems along the way.
+
+## Towers
+Each team has 9 towers on their side of the map. They must be destroyed to access the Nexus but if the opponent gets too close they attack.
+
+
+## Minions
+
+Luckily minions can be used to distract the towers from attacking the players. The minions also drop gold when eliminated.
+
+
+## Gold
+
+Gold can be used to purchase items which increase the stats of the champions.
+
+
+## Data Size
+Our analysis uses data from 150,000 matches of player data and 68,000 matches of team data. 
+This is why our P-values may be very small and why there will be a lot of data points in the scatter plots.
+
 ```{r import}
 match_stats <- read.csv("data/MatchStatsTbl.csv")
 row_count <- nrow(match_stats)
 col_count <- ncol(match_stats)
-cat("There are", row_count, "rows.\n")
-cat("There are", col_count, "columns.\n")
+cat("Player Data:\nThere are", row_count, "rows.\n")
+cat("There are", col_count, "columns.\n\n")
+```
 
+
+```{r import2}
 team_stats <- read.csv("data/TeamMatchTbl.csv")
 row_count2 <- nrow(team_stats)
 col_count2 <- ncol(team_stats)
-cat("There are", row_count2, "rows.\n")
+cat("Team Data:\nThere are", row_count2, "rows.\n")
 cat("There are", col_count2, "columns.\n")
-
-library(dplyr)
 
 summoner_match <- read.csv("data/other/SummonerMatchTbl.csv")
 match_stats <- match_stats |>
   left_join(summoner_match, by = c("SummonerMatchFk" = "SummonerMatchId"))
 
+
+
 champions <- read.csv("data/keys/ChampionTbl.csv")
 match_stats <- match_stats |>
-  left_join(champions, by = c("ChampionFk" = "ChampionId"))
+left_join(champions, by = c("ChampionFk" = "ChampionId"))
 
-match_metadata <- read.csv("data/other/MatchTbl.csv")
+match_data <- read.csv("data/other/MatchTbl.csv")
 match_stats <- match_stats |>
-  left_join(match_metadata, by = c("MatchFk" = "MatchId"))
+left_join(match_data, by = c("MatchFk" = "MatchId"))
 ```
 
-```{r clean}
 
+```{r clean}
 # Removes unimportant columns of data
 match_stats[, c(
+  "item1", "item2", "item3", "item4", "item5", "item6",
   "PrimarySlot1", "PrimarySlot2", "PrimarySlot3",
   "SecondarySlot1", "SecondarySlot2",
   "SummonerSpell1", "SummonerSpell2"
 )] <- list(NULL)
 
-nrow(match_stats)
 match_stats <- match_stats |>
   filter(QueueType == "CLASSIC")
 
-nrow(match_stats)
 names <- colnames(match_stats)
-print(names)
-```
-
-Multiple regression to test if 
-```{r multiple regression run}
-
-library(ggplot2)
-library(scales)
-library(car)
-
-# Generates subset of the data
-
-
-# make simple regression model
-multiple_regression <- lm(DmgDealt ~
-    DmgTaken + TotalGold + MinionsKilled + TurretDmgDealt,
-  data = match_stats
-)
 
 ```
 
-```{r multicollinearity check}
-# Check for multicollinearity (if they are too dependent)
-# Values 1-2 are good
-# Our values are good
-values <- vif(multiple_regression)
-cat(
-  "Damage Taken:   ",    as.numeric(values["DmgTaken"]),
-  "\nTotal Gold:     ",      as.numeric(values["TotalGold"]), "\n"
-)
-```
-Values between 1 and two no multicollinearity for out test.
+
+## Multiple Linear Regression
+
+We use multiple linear regression to find the factors that influence damage dealt by players. 
+
+This test finds the relationship between damage dealt and the predictors damage taken, total gold, minions killed, and towers destroyed (turret damage dealt). This test allows us to see the combined and individual effects of the continuous variables. 
+
+## Multiple Linear Regression Assumptions
+The assumptions of multiple linear regression are:
+
+1. independence
+2. linearity
+3. no multicollinearity
+4. normality of residuals
+5. homoscedasticity
+
+Before doing multiple linear regression we must check that all of these are true
+
+## Independence
+
+All 150,000 matches in out game are done in different matches. These means the outcome of the matches do not influence eachother. Because of this we know each data point is independent.
+
+## 5 Assumptions
+
+1. ~~independence~~
+2. **linearity**
+3. no multicollinearity
+4. normality of residuals
+5. homoscedasticity
+
+## Linearity
+To test linearity we will use `ggplot` to make scatter plots for each type of data.
+We will be doing a plot of Damage Dealt against : Damage Taken, Total Gold, and Minions Killed, Turret's Destroyed. We will then visually check for linearity.
+
+## Damage Dealt vs Damage Taken
 
 ```{r scatterplots to check for linearity taken vs dealt}
-
 ggplot(match_stats, aes(x = DmgTaken, y = DmgDealt)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  labs(title = "Linearity: DmgDealt vs DmgTaken")
+  labs(title = "Damage Dealt vs Damage Taken")
 
 ```
+
+Visually linear.
+
+## Damage Dealt vs Total Gold
 
 ```{r scatterplots to check for linearity taken vs gold}
 
 ggplot(match_stats, aes(x = DmgTaken, y = TotalGold)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  labs(title = "Linearity: DmgDealt vs TotalGold")
+  labs(title = "Damage Dealt vs Total Gold")
 
 ```
+
+Visually linear.
+
+## Damage Dealt vs Minions Killed
 
 ```{r scatterplots to check for linearity taken vs killed}
 
 ggplot(match_stats, aes(x = DmgTaken, y = MinionsKilled)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  labs(title = "Linearity: DmgDealt vs MinionsKilled")
+  labs(title = "Damage Dealt vs Minions Killed")
 
 ```
-This one isn't linear
+
+Visually not linear
+
+## Damage Dealt vs Turrets Destroyed
 
 ```{r scatterplots to check for linearity taken vs turrets}
 
 ggplot(match_stats, aes(x = DmgTaken, y = TurretDmgDealt)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  labs(title = "Linearity: DmgDealt vs TurretDmgDealt")
+  labs(title = "Damage Dealt vs Turrets Destroyed")
 
 ```
-This one isn't linear either
 
-```{r scatterplots to check for linearity taken vs turrets}
+Visually not linear
+
+## Damage Dealt vs Curret Mastery Points
+
+```{r scatterplots to check for linearity taken vs mastery points}
 
 ggplot(match_stats, aes(x = DmgTaken, y = CurrentMasteryPoints)) +
   geom_point() +
   geom_smooth(method = "lm") +
-  labs(title = "Linearity: DmgDealt vs CurrentMasteryPoints")
-
+  labs(title = "Damage Dealt vs Current Mastery Points")
 ```
-This one also ins't linear either
 
-After checking we only have two variables that have linear relationships with DmgTaken.
+Visually not linear
 
-So we will do the multiple regression again with just those two variables.
-```{r multiple regression run}
+## Changing the Test
 
-library(ggplot2)
-library(scales)
-library(car)
+Because we can only use linear relationships between variables we will have to change what we test.
 
-# Generates subset of the data
+Because of this we will only be testing the dependent variable of Damage Dealt against the independent variables of Damage Taken and Total Gold.
 
+## 5 Assumptions
+
+1. ~~independence~~
+2. ~~linearity~~
+3. **no multicollinearity**
+4. normality of residuals
+5. homoscedasticity
+
+## Checking for no multicollinearity
+
+We also need to check that there is no multicollinearity. This makes sure that our two independent variables are not too highly coorelated. This would be like if every time we took one damage we got one gold. This would make the individual coefficients unreliable. To test for this we need to calculate the Variance Inflation Factor.
+
+```{r multiple linear regression run}
 
 # make simple regression model
 multiple_regression <- lm(DmgDealt ~
@@ -152,9 +245,9 @@ multiple_regression <- lm(DmgDealt ~
 
 ```
 
+## Variance Inflation Factor
 
-Although it ap
-
+A VIF of 1 means there is no correlation. A VIF of greater than 1 means there is some coorelation. This only really matters if the VIF is greater than 5 as this suggests a high multicollinearity.
 ```{r multicollinearity check}
 # Check for multicollinearity (if they are too dependent)
 # Values 1-2 are good
@@ -166,68 +259,134 @@ cat(
 )
 ```
 
+
+## 5 Assumptions
+
+1. ~~independence~~
+2. ~~linearity~~
+3. ~~no multicollinearity~~
+4. **normality of residuals**
+5. homoscedasticity
+
+## Normailty of Residuals
+
+Based on the test, both of our variables have a pretty low multicollinearity and are safe to use.
+
 To check for normality of residuals we can plot the multiple regression graph.
 Using `which = 2` prints a Q-Q Residuals graph or Quantile-Quantile plot of residuals.
 If this is straight diagnol it means our data follows a normal distribution.
+
+## Q-Q Residuals Graph
 ```{r check for normality of residuals}
 plot(multiple_regression, which = 2)
 ```
+
+## Q-Q Residuals Graph Takeaway
 The graph not being straight diagonal is okay for our data through. This is alright because of the Central Limit Theorem. This basically means that if the sample size is greater than 30 the sample mean will be about normal. Luckily we have 150,000 samples which allows us to ignore this requirement.
 
+## 5 Assumptions
 
-Tests for homoscedasticity
+1. ~~independence~~
+2. ~~linearity~~
+3. ~~no multicollinearity~~
+4. ~~normality of residuals~~
+5. **homoscedasticity**
+
+## Checking for Homoscedasticity
+
+Homoscedasticity is same variance. It means that if the player had a low, medium, or high damage taken, the spread of how far the predicted damage dealt is from the actual damage dealt should be about the same. We want homoscedasticity. To test for this we can use a Breusch-Pagan test.
+
+## Breusch-Pagan Test
+
+Because our p value is so low we reject the idea that we have homoscedasticity which is a requirement for this test.
+This means our confidence intervals may be incorrect but our other visualizations should be fine.
+
 ```{r breusch pagan test}
 breusch_pagan_test <- ncvTest(multiple_regression)
 print(breusch_pagan_test)
 ```
 
-Because our p value is so low we reject the idea that we have homoscedasticity which is a requirement for this test.
-This means our confidence intervals may be incorrect but our other visualizations should be fine.
+## Multiple Linear Regression Summary
 
-This is our p values before accounting for this.
+This is a summary of our multiple linear regression without accounting for homoscedasticity. The coorelation between damage dealt, damage taken, and total gold is statistically significant.
+
 ```{r prints the summary}
 # Print off if this matters or not
 summary(multiple_regression)
 ```
 
-This is them while using a test that accounts for this. 
-```{r coefficient test}
-library(sandwich)
-library(lmtest)
+## Accounting for Homoscedasticity
 
+Using robust coefficients allows us to account for the lack of homoscedasticity. It ensures the standard errors are valid even when the residual variance is not constant.
+```{r coefficient test}
 coeftest(multiple_regression, vcov = vcovHC(multiple_regression, type = "HC1"))
 ```
-Luckily our p values are so small not having homoscedasticity doesn't have a large effect. This test calcuates and uses robust stardard errors which accounts for not having homoscedasticity. They ensure the standard errors are valid even when the residual variance is not constant.
+
+## Coefficient Test Conclusions
+
+Luckily our p values are so small not having homoscedasticity doesn't have a large effect. This very slightly changes our estimates and t values. This does not change our p-values though as they are so small.
+
+## 5 Assumptions
+
+Now that our assumptions are correct. We can use partial regression to make interesting graphs.
+
+1. ~~independence~~
+2. ~~linearity~~
+3. ~~no multicollinearity~~
+4. ~~normality of residuals~~
+5. ~~homoscedasticity~~
 
 
-```{r prints the graphs}
-# Creates the variable plots
-#000000 point color
-#0.01 : 1 percent opacity
+## Partial Regression
+
+The next graphs will use Partial Regression.
+This uses the previous multiple linear regression claculations but holds all other variables constant.
+Holding all other variable's constant allows us to use a 2d graph to compare variables impact on eachother.
+
+
+## Partial Regression
+```{r partial regression dmgdealt vs dmgtaken }
 
 # Partial Regression
 avPlots(
   multiple_regression,
   "DmgTaken",
-  col = alpha("#000000", 0.04),
-  xlim = c(-35000, 35000),
-  ylim = c(-35000, 35000)
+  col = alpha("#ff922f", 0.04), # 4% opacity
+  xlim = c(-40000, 40000),
+  ylim = c(-40000, 40000)
 )
 ```
 
-```{r total gold}
+Compares Damage Dealt with Damage Taken.
+
+## Partial Regression
+Takeaway: Both having a positive relationship makes sense as hitting sombody usually results in getting hit back.
+
+
+
+## Partial Regression
+```{r partial regression dmgdealt vs totalgold }
 avPlots(
   multiple_regression,
   "TotalGold",
-  col = alpha("#000000", 0.04),
-  xlim = c(-35000, 35000),
-  ylim = c(-35000, 35000)
+  col = alpha("#ff922f", 0.04),
+  xlim = c(-40000, 40000),
+  ylim = c(-40000, 40000)
 )
 ```
 
-Makes a 3d graph of multiple regression.
+Compares Damage Dealt with Total Gold aquired.
+
+## Partial Regression
+Takeaway: Gold allows users to purchase items that increase damage. More gold meaning more damage dealt makes sense.
+
+## 3D Multiple Linear Regression Graph
+One advantage of only having two independent variables is we can make a 3D graph!
+This graph is essentially a combination of the previous two so no other conclusions will likely be drawn from it.
+
+## 3D Graph
+
 ```{r 3d plot}
-library(plotly)
 
 # Makes the regression plane
 damage_taken_sequence <- seq(
@@ -280,7 +439,6 @@ three_dimension_graph <- add_surface(
   )
 )
 
-# Removes the margins
 three_dimension_graph <- layout(
   p = three_dimension_graph,
   margin = list(l = 0, r = 0, b = 0, t = 0)
@@ -290,11 +448,88 @@ three_dimension_graph
 
 ```
 
+3D graphs do not render in pdf form. Run the quarto presentation or Rmd file to view.
+
+## Multiple Linear Regression Conclusion
+
+From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
+
+## Pearson Correlation Tests
+This test measures the strength and direction of a linear relationship between two variables.
+
+**Assumptions**:  
+- Both variables are numerical
+- Normal distributions for both variables
+- Approximately linear relationship
+
+```{r Pearson Correlation Tests}
+match_stats <- read.csv("data/MatchStatsTbl.csv")
+summoner_match <- read.csv("data/other/SummonerMatchTbl.csv")
+match_stats <- match_stats |>
+ left_join(summoner_match, by = c("SummonerMatchFk" = "SummonerMatchId"))
+champions <- read.csv("data/keys/ChampionTbl.csv")
+match_stats <- match_stats |>
+ left_join(champions, by = c("ChampionFk" = "ChampionId"))
+
+# Vision Score vs Kills
+
+cor_test_kills <- cor.test(match_stats$visionScore,
+                           match_stats$kills,
+                           method = "pearson")
+
+# Scatterplot with regression line
+vscore_kills_plot <- ggplot(match_stats, aes(x = visionScore, y = kills)) +
+  geom_point(alpha = 0.5, color = "steelblue") +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(
+    title = "Vision Score vs Kills",
+    subtitle = paste0("r = ", round(cor_test_kills$estimate, 3),
+                      ", p = ", format.pval(cor_test_kills$p.value,
+                                            digits = 3)),
+    x = "Vision Score",
+    y = "Kills"
+  ) +
+  theme_minimal()
+
+# Vision Score vs Deaths
+cor_test_deaths <- cor.test(match_stats$visionScore,
+                            match_stats$deaths,
+                            method = "pearson")
+
+# Scatterplot with regression line
+vscore_deaths_plot <- ggplot(match_stats, aes(x = visionScore, y = deaths)) +
+  geom_point(alpha = 0.5, color = "coral") +
+  geom_smooth(method = "lm", se = TRUE, color = "darkred") +
+  labs(
+    title = "Vision Score vs Deaths",
+    subtitle = paste0("r = ", round(cor_test_deaths$estimate, 3),
+                      ", p = ", format.pval(cor_test_deaths$p.value,
+                                            digits = 3)),
+    x = "Vision Score",
+    y = "Deaths"
+  ) +
+  theme_minimal()
+```
+
+## Vision Score vs Kills
+``` {r vision score vs kills}
+vscore_kills_plot
+```
+
+## Vision Score vs Kills Conlusion
+- The correlation is slightly negative. Players with higher vision scores tend to have fewer kills.  
+- Heteroscedasticity means the strength of this relationship varies across the range of Vision Score.
+
+## Vision Score vs Deaths
+``` {r vision score vs deaths}
+vscore_deaths_plot
+```
+
+## Vision Score vs Deaths Conlusion
+Although the correlation between Vision Score and Deaths is statistically significant (r = -0.035, p < 2e-16) due to the very large sample size, the correlation coefficient is negligible. Therefore, there is no practically meaningful linear relationship between Vision Score and Deaths.
+
+## Two Way Anova
 ```{r 2WayANOVA}
-library(ggplot2)
-library(dplyr)
-
-
 #Definition list for each rune name and ID
 rune_stones_lookup <- data.frame(
   rune = c(
@@ -403,118 +638,102 @@ filtered$rune <- factor(filtered$rune, levels = keystone_order)
 
 #Loop over lanes and create graph for each
 lanes <- unique(filtered$Lane)
-for (lane in lanes){
+```
 
-  df_lane <- filtered[filtered$Lane == lane, ]
+
+
+## Top - Two Way Anova
+```{r tukey-top}
+df_lane <- filtered[filtered$Lane == "TOP", ]
   plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
     geom_boxplot(alpha = 0.8, outlier.shape = NA) +
     scale_fill_manual(values = rune_colors) +
     xlab("Rune Stone") +
     ylab("Damage Dealt") +
-    ggtitle(lane) +
+    ggtitle("TOP") +
     theme(axis.text.x = element_blank())
 
-  print(plot)
-}
+print(plot)
 ```
 
-```{r Team Logistic Regression}
-library(car)
-#Logistic Regression on a bunch of team Data
-blue_barons <- team_stats$BlueBaronKillvis
-blue_dragons <- team_stats$BlueDragonKills
-blue_heralds <- team_stats$BlueRiftHeraldKills
-blue_kills <- team_stats$BlueKills
-blue_towers <- team_stats$BlueTowerKills
 
-model <- glm(
-  BlueWin ~ blue_barons + blue_dragons + blue_heralds + blue_kills + blue_towers,
-  data = team_stats,
-  family = binomial
-)
 
-summary(model)
-# Results give us a legit function,
-# need to convert to individual winrate multipliers
-odd_mults <- exp(coef(model)[-1])
-odd_mults
+## Jungle - Two Way Anova
+```{r tukey-jungle}
+df_lane <- filtered[filtered$Lane == "JUNGLE", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("JUNGLE") +
+    theme(axis.text.x = element_blank())
 
-#Probability Conversion = Mults/1+mult Can build predictor model off of this
-winrate <- 0.5 #50% chance of winning a game
-barons <- 1
-dragons <- 0
-heralds <- 0
-kills <- 0
-towers <- 1
-odds <- winrate / (1 - winrate) *
-  odd_mults["blue_barons"]^barons *
-  odd_mults["blue_dragons"]^dragons *
-  odd_mults["blue_heralds"]^heralds *
-  odd_mults["blue_kills"]^kills *
-  odd_mults["blue_towers"]^towers
-
-probability <- odds / (1 + odds)
-probability
+print(plot)
 ```
 
-```{r Pearson Correlation Tests}
-# Vision Score vs Kills
 
-cor_test_kills <- cor.test(match_stats$visionScore,
-                           match_stats$kills,
-                           method = "pearson")
 
-cat("Pearson Correlation Test Results:\n")
-print(cor_test_kills)
-cat("\n")
+## Middle - Two Way Anova
+```{r tukey-middle}
+df_lane <- filtered[filtered$Lane == "MIDDLE", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("MIDDLE") +
+    theme(axis.text.x = element_blank())
 
-# Scatterplot with regression line
-plot1 <- ggplot(match_stats, aes(x = visionScore, y = kills)) +
-  geom_point(alpha = 0.5, color = "steelblue") +
-  geom_smooth(method = "lm", se = TRUE, color = "red") +
-  labs(
-    title = "Vision Score vs Kills",
-    subtitle = paste0("r = ", round(cor_test_kills$estimate, 3),
-                      ", p = ", format.pval(cor_test_kills$p.value,
-                                            digits = 3)),
-    x = "Vision Score",
-    y = "Kills"
-  ) +
-  theme_minimal()
-
-print(plot1)
-
-# Vision Score vs Deaths
-cor_test_deaths <- cor.test(match_stats$visionScore,
-                            match_stats$deaths,
-                            method = "pearson")
-
-cat("Pearson Correlation Test Results:\n")
-print(cor_test_deaths)
-cat("\n")
-
-# Scatterplot with regression line
-plot2 <- ggplot(match_stats, aes(x = visionScore, y = deaths)) +
-  geom_point(alpha = 0.5, color = "coral") +
-  geom_smooth(method = "lm", se = TRUE, color = "darkred") +
-  labs(
-    title = "Vision Score vs Deaths",
-    subtitle = paste0("r = ", round(cor_test_deaths$estimate, 3),
-                      ", p = ", format.pval(cor_test_deaths$p.value,
-                                            digits = 3)),
-    x = "Vision Score",
-    y = "Deaths"
-  ) +
-  theme_minimal()
-
-print(plot2)
+print(plot)
 ```
 
+
+
+## Bottom - Two Way Anova
+```{r tukey-bottom}
+df_lane <- filtered[filtered$Lane == "BOTTOM", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("BOTTOM") +
+    theme(axis.text.x = element_blank())
+
+print(plot)
+```
+
+
+
+## Support - Two Way Anova
+```{r tukey-support}
+df_lane <- filtered[filtered$Lane == "SUPPORT", ]
+  plot <- ggplot(df_lane, aes(x = rune, y = DmgDealt, fill = rune)) +
+    geom_boxplot(alpha = 0.8, outlier.shape = NA) +
+    scale_fill_manual(values = rune_colors) +
+    xlab("Rune Stone") +
+    ylab("Damage Dealt") +
+    ggtitle("SUPPORT") +
+    theme(axis.text.x = element_blank())
+
+print(plot)
+```
+
+
+
+## Play Style Clustering
+There are 5 roles in LoL (Top, Middle, Bottom, Jungle, Support), which can be combined into 3 distinct playstyle groups (Laner, Jungle, Support). 
+
+
+Can K-means clustering be used to cluster player data into these three playstyle groups?
+
+
+Features: Damage Dealt, Damage Taken, Total Gold, Kills, Deaths, Assists, Vision Score, Dragon Kills, and Baron Kills.
 
 ```{r Play Style Clustering}
-library(ggplot2)
-library(reshape2)
-library(tidyr)
+
+
 cluster_match_stats <- match_stats |>
   filter(Lane != "NONE")
 
@@ -539,7 +758,7 @@ centers$cluster <- rownames(centers)
 
 centers_melt <- melt(centers, id = "cluster")
 
-bar_graph <- ggplot(
+play_style_bar_graph <- ggplot(
   centers_melt,
   aes(x = variable, y = value, fill = cluster)
 ) +
@@ -548,13 +767,6 @@ bar_graph <- ggplot(
   labs(title = "Cluster Centers (Scaled Values)",
        x = "Feature", y = "Scaled Value") +
   theme(axis.text.x = element_text(size = 8, angle = 45, hjust = 1))
-
-print(bar_graph)
-
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(scales)
 
 # Prepare table
 cluster_role_percent <- cluster_match_stats |>
@@ -574,7 +786,7 @@ cluster_role_percent <- cluster_match_stats |>
   select(cluster, LaneGroup, percent)
 
 # Make stacked bar chart
-stacked_bar_graph <- ggplot(cluster_role_percent,
+cluster_comp_stacked_bar_graph <- ggplot(cluster_role_percent,
                             aes(x = factor(cluster), y = percent,
                                 fill = LaneGroup)) +
   geom_bar(stat = "identity") +
@@ -592,16 +804,94 @@ stacked_bar_graph <- ggplot(cluster_role_percent,
   ) +
   theme_minimal()
 
-# Show the plot
-stacked_bar_graph
-
-# Pivot to wide format
-cluster_role_percent_wide <- cluster_role_percent |>
+# Pivot to wide format table
+cluster_role_percent <- cluster_role_percent |>
   pivot_wider(
     names_from = LaneGroup,
     values_from = percent,
     values_fill = 0
   )
+```
 
-cluster_role_percent_wide
+## Important Considerations for K-Means
+
+- Features are numerical  
+- Scale of features matter  
+- K should be meaningful within the context of the underlying structure of data
+
+## Play Style Bar Graph Explanation
+The bar graph on the following slide shows where the center of each cluster converged.  
+
+- One cluster converges on higher overall damage dealt/taken, total gold, kills, deaths, and assists (aligns with Laner's playstyle)  
+- Another cluster converges on a relatively higher vision score and very low total gold (aligns with Support's playstyle)  
+- The other cluster converges on very high dragon kills and baron kills (aligns with Jungle's playstyle)  
+
+## Play Style Bar Graph
+```{r bar_graph}
+play_style_bar_graph
+```
+
+## Cluster Composition Stacked Bar Graph Explanation
+The stacked bar graph on the following slide shows the composition of each cluster. One cluster has a high percentage of Jungle players. The other two clusters are very similar in composition with a majority of Laner players. 
+
+## Cluster Composition Stacked Bar Graph
+```{r cluster_graph}
+cluster_comp_stacked_bar_graph
+```
+
+## K-Means Cluster Conclusion
+In conclusion, k-means was not able to separate Laner and Support players into distinct clusters well based on these set of features and implementation.  
+
+**Areas for improvement**:  
+- The biggest distinction between support and other roles is vision score per total gold. Adding this ratio as a feature may improve clustering results.  
+- Laner is composed of three less distinct roles (Top, Middle, Bottom) that appear in each match. Therefore, Laner may have a higher variance or density, which may explain why the Laners were split into 2 clusters. Increasing K to 4 or 5 may resolve this issue.
+
+## Team Playstyle Logistical Regression
+Using a Logistical Regression test we can determine the optimal playstyle for a team based on a variety of map objectives and team kills
+
+## Team Playstyle Logistical Regression
+```{r Team Logistic Regression Function}
+#Logistic Regression on a bunch of team Data
+blue_barons <- team_stats$BlueBaronKills
+blue_dragons <- team_stats$BlueDragonKills
+blue_heralds <- team_stats$BlueRiftHeraldKills
+blue_kills <- team_stats$BlueKills
+blue_towers <- team_stats$BlueTowerKills
+
+model <- glm(
+  BlueWin ~ blue_barons + blue_dragons + blue_heralds + blue_kills + blue_towers,
+  data = team_stats,
+  family = binomial
+)
+
+summary(model)
+
+```
+
+## Team Playstyle Logistical Regression
+Looking at this summary we can see the individual effects each factor has on your chance of winning. This shows that towers are by far the most important thing to be playing for as a team with dragons closly behind. Notice the negative coeffiecnt for Barons and Rift Herald takes. This is a side effect of including Tower kills in the model. As the model holds the other factors constant and tests these two it sees a lowering of winrate (Very low data size). This makes sense as these objectives are highly related to taking a tower, and thus taking this objective and failing to secure a tower signify a larger issue with the game state.
+
+## Team Playstyle Logistical Regression
+```{r Team Logistic Regression Predictor}
+# Results give us a legit function,
+# need to convert to individual winrate multipliers
+odd_mults <- exp(coef(model)[-1])
+odd_mults
+
+#Probability Conversion = Mults/1+mult Can build predictor model off of this
+winrate <- 0.5 #50% chance of winning a game
+barons <- 1
+dragons <- 0
+heralds <- 0
+kills <- 0
+towers <- 1
+odds <- winrate / (1 - winrate) *
+  odd_mults["blue_barons"]^barons *
+  odd_mults["blue_dragons"]^dragons *
+  odd_mults["blue_heralds"]^heralds *
+  odd_mults["blue_kills"]^kills *
+  odd_mults["blue_towers"]^towers
+
+probability <- odds / (1 + odds)
+probability
 ```
