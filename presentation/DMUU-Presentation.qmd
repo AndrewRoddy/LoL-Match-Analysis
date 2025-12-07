@@ -224,6 +224,37 @@ ggplot(match_stats, aes(x = DmgTaken, y = CurrentMasteryPoints)) +
 
 Visually not linear
 
+## Changing the Test
+
+Because we can only use linear relationships between variables we will have to change what we test.
+
+Because of this we will only be testing the dependent variable of Damage Dealt against the independent variables of Damage Taken and Total Gold.
+
+## 5 Assumptions
+
+1. ~~independence~~
+2. ~~linearity~~
+3. **no multicollinearity**
+4. normality of residuals
+5. homoscedasticity
+
+## Checking for no multicollinearity
+
+We also need to check that there is no multicollinearity. This makes sure that our two independent variables are not too highly coorelated. This would be like if every time we took one damage we got one gold. This would make the individual coefficients unreliable. To test for this we need to calculate the Variance Inflation Factor.
+
+```{r multiple linear regression run}
+
+library(ggplot2)
+library(scales)
+library(car)
+
+# make simple regression model
+multiple_regression <- lm(DmgDealt ~
+    DmgTaken + TotalGold,
+  data = match_stats
+)
+
+```
 ## Multiple Linear Regression Conclusion
 
 From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
