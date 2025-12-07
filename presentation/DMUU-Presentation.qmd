@@ -113,6 +113,10 @@ match_stats <- match_stats |>
 champions <- read.csv("../data/keys/ChampionTbl.csv")
 match_stats <- match_stats |>
 left_join(champions, by = c("ChampionFk" = "ChampionId"))
+
+match_data <- read.csv("../data/other/MatchTbl.csv")
+match_stats <- match_stats |>
+left_join(match_data, by = c("MatchFk" = "MatchId"))
 ```
 
 
@@ -229,7 +233,6 @@ ggplot(match_stats, aes(x = DmgTaken, y = CurrentMasteryPoints)) +
   geom_point() +
   geom_smooth(method = "lm") +
   labs(title = "Damage Dealt vs Current Mastery Points")
-
 ```
 
 Visually not linear
@@ -423,7 +426,7 @@ library(plotly)
 # Makes the regression plane
 damage_taken_sequence <- seq(
   min(match_stats$DmgTaken),
-  max(match_stats$DmgTaken),z
+  max(match_stats$DmgTaken),
   length.out = 30 # 30 points for plane
 )
 
@@ -866,7 +869,7 @@ Using a Logistical Regression test we can determine the optimal playstyle for a 
 ## Team Playstyle Logistical Regression
 ```{r Team Logistic Regression Function}
 #Logistic Regression on a bunch of team Data
-blue_barons <- team_stats$BlueBaronKillvis
+blue_barons <- team_stats$BlueBaronKills
 blue_dragons <- team_stats$BlueDragonKills
 blue_heralds <- team_stats$BlueRiftHeraldKills
 blue_kills <- team_stats$BlueKills
