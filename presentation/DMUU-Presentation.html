@@ -238,10 +238,46 @@ F-statistic: 8.154e+04 on 4 and 150500 DF,  p-value: &lt; 2.2e-16</code></pre>
 </div>
 </div>
 </section>
-<section id="multiple-regression-graph" class="slide level2 big-code">
-<h2>Multiple Regression Graph</h2>
+<section id="partial-regression" class="slide level2 big-code">
+<h2>Partial Regression</h2>
+<p>The next graphs will use Partial Regression. This uses the previous multiple regression claculations but holds all other variables constant. Holding all other variable’s constant allows us to use a 2d graph to compare variables impact on eachother.</p>
+</section>
+<section id="partial-regression-1" class="slide level2 big-code">
+<h2>Partial Regression</h2>
 
-<img data-src="DMUU-Presentation_files/figure-revealjs/multiple%20regression%20graph-1.png" width="960" class="r-stretch"></section>
+<img data-src="DMUU-Presentation_files/figure-revealjs/partial%20regression%20dmgdealt%20vs%20dmgtaken-1.png" width="960" class="r-stretch"><p>Compares Damage Dealt with Damage Taken.</p>
+</section>
+<section id="partial-regression-2" class="slide level2 big-code">
+<h2>Partial Regression</h2>
+<p>Takeaway: Both having a positive relationship makes sense as hitting sombody usually results in getting hit back.</p>
+</section>
+<section id="partial-regression-3" class="slide level2 big-code">
+<h2>Partial Regression</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/partial%20regression%20dmgdealt%20vs%20totalgold-1.png" width="960" class="r-stretch"><p>Compares Damage Dealt with Total Gold aquired.</p>
+</section>
+<section id="partial-regression-4" class="slide level2 big-code">
+<h2>Partial Regression</h2>
+<p>Takeaway: Gold allows users to purchase items that increase damage. More gold meaning more damage dealt makes sense.</p>
+</section>
+<section id="partial-regression-5" class="slide level2 big-code">
+<h2>Partial Regression</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/partial%20regression%20dmgdealt%20vs%20minionskilled-1.png" width="960" class="r-stretch"><p>Compares Damage Dealt with Minions Killed.</p>
+</section>
+<section id="partial-regression-6" class="slide level2 big-code">
+<h2>Partial Regression</h2>
+<p>Takeaway: Support players are intended to kill minions and not deal damage. This makes sense.</p>
+</section>
+<section id="partial-regression-7" class="slide level2 big-code">
+<h2>Partial Regression</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/partial%20regression%20dmgdealt%20vs%20towersdowned-1.png" width="960" class="r-stretch"><p>Note the different graph scales. Also TurretDmgDealt means Turret’s Downed.</p>
+</section>
+<section id="partial-regression-8" class="slide level2 big-code">
+<h2>Partial Regression</h2>
+<p>Takeaway : Players that destroy towers are less likely to deal a lot of damage.</p>
+</section>
 <section id="chi-square-test-of-independence" class="slide level2 big-code">
 <h2>Chi-square Test of Independence</h2>
 <p>The test determines if win rate depends on champion.</p>
@@ -252,19 +288,18 @@ F-statistic: 8.154e+04 on 4 and 150500 DF,  p-value: &lt; 2.2e-16</code></pre>
 <li>Expected Frequency ≥ 5</li>
 </ul>
 </section>
-<section id="chi-square-test-of-independence-1" class="slide level2 big-code">
-<h2>Chi-square Test of Independence</h2>
-<p>We reject the null hypothesis. There is a statistically significant association between champion choice and match outcome (win/loss).</p>
-<div class="cell">
-<div class="cell-output cell-output-stdout">
-<pre><code>
-    Pearson's Chi-squared test
-
-data:  champion_win_table
-X-squared = 444.22, df = 170, p-value &lt; 2.2e-16</code></pre>
-</div>
-</div>
+<section id="pearson-correlation-tests" class="slide level2 big-code">
+<h2>Pearson Correlation Tests</h2>
+<p>Add Text.</p>
 </section>
+<section id="vision-score-vs-kills" class="slide level2">
+<h2>Vision Score vs Kills</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/vision%20score%20vs%20kills-1.png" width="960" class="r-stretch"></section>
+<section id="vision-score-vs-deaths" class="slide level2">
+<h2>Vision Score vs Deaths</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/vision%20score%20vs%20deaths-1.png" width="960" class="r-stretch"></section>
 <section id="two-way-anova" class="slide level2">
 <h2>Two Way Anova</h2>
 <div class="cell">
@@ -304,14 +339,79 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 <p>Use K-Means clustering on specific match stats. We set k = 3 and expect to see the three main styles of play get their own cluster (Jungler, Support, Laner).</p>
 <p>Features: Damage Dealt, Damage Taken, Total Gold, Kills, Deaths, Assists, Vision Score, Dragon Kills, and Baron Kills.</p>
 </section>
-<section id="play-style-cluster-graph" class="slide level2">
-<h2>Play Style Cluster Graph</h2>
-
-<img data-src="DMUU-Presentation_files/figure-revealjs/cluster_graph-1.png" width="960" class="r-stretch"></section>
 <section id="play-style-bar-graph" class="slide level2">
 <h2>Play Style Bar Graph</h2>
 
 <img data-src="DMUU-Presentation_files/figure-revealjs/bar_graph-1.png" width="960" class="r-stretch"></section>
+<section id="cluster-composition-stacked-bar-graph" class="slide level2">
+<h2>Cluster Composition Stacked Bar Graph</h2>
+
+<img data-src="DMUU-Presentation_files/figure-revealjs/cluster_graph-1.png" width="960" class="r-stretch"></section>
+<section id="chi-square-test---build-optimizer" class="slide level2">
+<h2>Chi Square Test - Build Optimizer</h2>
+<p>type here</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    1-sample proportions test with continuity correction
+
+data:  ahri_wins out of total_games, null probability 0.5
+X-squared = 27.856, df = 1, p-value = 1.307e-07
+alternative hypothesis: true p is not equal to 0.5
+95 percent confidence interval:
+ 0.5549201 0.6195286
+sample estimates:
+        p 
+0.5875952 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pearson's Chi-squared test
+
+data:  test_table
+X-squared = 10.806, df = 7, p-value = 0.1473</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 3
+  PrimaryKeyStone games winrate
+            &lt;int&gt; &lt;int&gt;   &lt;dbl&gt;
+1            8214    81   0.691
+2            8128    62   0.613
+3            8112   761   0.577
+4            8010     6   0.333</code></pre>
+</div>
+</div>
+</section>
+<section id="fisher-test---build-optimizer" class="slide level2">
+<h2>Fisher Test - Build Optimizer</h2>
+<p>type here</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Fisher's Exact Test for Count Data
+
+data:  test_table
+p-value = 0.1193
+alternative hypothesis: two.sided</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 35 × 3
+    item games winrate
+   &lt;int&gt; &lt;int&gt;   &lt;dbl&gt;
+ 1  3171    74   0.797
+ 2  3041    61   0.787
+ 3  2055    27   0.778
+ 4  3175   112   0.741
+ 5  2421    35   0.714
+ 6  3137    36   0.694
+ 7  3135    63   0.683
+ 8  3111    53   0.679
+ 9  4630    56   0.679
+10  3108    51   0.667
+# ℹ 25 more rows</code></pre>
+</div>
+</div>
+</section>
 <section id="thank-you" class="slide level2 center">
 <h2>Thank You!</h2>
 
