@@ -292,6 +292,27 @@ If this is straight diagnol it means our data follows a normal distribution.
 plot(multiple_regression, which = 2)
 ```
 
+## Q-Q Residuals Graph Takeaway
+The graph not being straight diagonal is okay for our data through. This is alright because of the Central Limit Theorem. This basically means that if the sample size is greater than 30 the sample mean will be about normal. Luckily we have 150,000 samples which allows us to ignore this requirement.
+
+## 5 Assumptions
+
+1. ~~independence~~
+2. ~~linearity~~
+3. ~~no multicollinearity~~
+4. ~~normality of residuals~~
+5. **homoscedasticity**
+
+## Checking for Homoscedasticity
+
+Homoscedasticity is same variance. It means that if the player had a low, medium, or high damage taken, the spread of how far the predicted damage dealt is from the actual damage dealt should be about the same. We want homoscedasticity. To test for this we can use a Breusch-Pagan test.
+
+## Breusch-Pagan Test {.big-code}
+
+```{r breusch pagan test}
+breusch_pagan_test <- ncvTest(multiple_regression)
+print(breusch_pagan_test)
+```
 ## Multiple Linear Regression Conclusion
 
 From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
