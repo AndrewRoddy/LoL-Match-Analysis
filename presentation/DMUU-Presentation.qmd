@@ -132,6 +132,16 @@ We use multiple linear regression to find the factors that influence damage deal
 
 This test finds the relationship between damage dealt and the predictors damage taken, total gold, minions killed, and towers destroyed (turret damage dealt). This test allows us to see the combined and individual effects of the continuous variables. 
 
+## Multiple Linear Regression Assumptions
+The assumptions of multiple linear regression are:
+
+1. independence
+2. linearity
+3. no multicollinearity
+4. normality of residuals
+5. homoscedasticity
+
+Before doing multiple linear regression we must check that all of these are true
 
 ## Multiple Linear Regression Conclusion
 
