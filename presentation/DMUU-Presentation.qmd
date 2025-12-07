@@ -139,13 +139,13 @@ match_stats[, c(
   "SummonerSpell1", "SummonerSpell2"
 )] <- list(NULL)
 
-nrow(match_stats)
+# nrow(match_stats)
 match_stats <- match_stats |>
   filter(QueueType == "CLASSIC")
 
-nrow(match_stats)
+# nrow(match_stats)
 names <- colnames(match_stats)
-print(names)
+# print(names)
 
 ```
 
