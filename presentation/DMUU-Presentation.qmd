@@ -463,8 +463,8 @@ bar_graph
 
 
 ## Chi Square Test - Build Optimizer
-
-type here
+    We run a Chi-Square test to see if the difference between Keystones is statistically signifigant. In other words if the choice of keystone matters in determining winrate.
+##
 
 ```{r Build Optimizer}
 library(dplyr)
@@ -511,12 +511,12 @@ print(ahri_keystone_summary)
 
 ## Fisher Test - Build Optimizer
 
-type here
+We also run a Fisher Test on the items to see if there is a statistically signifigant relation between items and winrate
 
 ```{r risher test}
 # Is difference between them signifigant
-test_table <- table(ahri_data$PrimaryKeyStone, ahri_data$Win)
-fisher.test(test_table) #Alternative chi^2 because of some runes low sample size
+test_table <- table(ahri_data$item, ahri_data$Win)
+fisher.test(test_table) #Alternative chi^2 because of some items low sample size
 # May be innaccurate due to nature of game
 
 # Find best items on Ahri
