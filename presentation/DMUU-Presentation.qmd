@@ -155,6 +155,10 @@ All 150,000 matches in out game are done in different matches. These means the o
 4. normality of residuals
 5. homoscedasticity
 
+## Linearity
+To test linearity we will use `ggplot` to make scatter plots for each type of data.
+We will be doing a plot of Damage Dealt against : Damage Taken, Total Gold, and Minions Killed, Turret's Destroyed. We will then visually check for linearity.
+
 ## Multiple Linear Regression Conclusion
 
 From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
