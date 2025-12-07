@@ -420,6 +420,8 @@ This graph is essentially a combination of the previous two so no other conclusi
 #| out-width: "200%"
 #| out-height: "300%"
 
+
+
 # Makes the regression plane
 damage_taken_sequence <- seq(
   min(match_stats$DmgTaken),
@@ -445,10 +447,13 @@ grid$PredictedDmg <- predict(multiple_regression, newdata = grid)
 # Makes empty plot point
 three_dimension_graph <- plot_ly()
 
+# Reduces the amount of points used in the rendering of the graph
+match_stats_smaller <- match_stats[1:15000, ]
+
 # Puts in the dots
 three_dimension_graph <- add_markers(
   p = three_dimension_graph, # Adds onto the plot I already made
-  data = match_stats,
+  data = match_stats_smaller,
   x = ~DmgTaken,
   y = ~TotalGold,
   z = ~DmgDealt,
@@ -479,6 +484,8 @@ three_dimension_graph <- layout(
 three_dimension_graph
 
 ```
+
+This is only rendering the first 15,000 points. It still uses the regression of all 150,000.
 
 ## Multiple Linear Regression Conclusion
 
