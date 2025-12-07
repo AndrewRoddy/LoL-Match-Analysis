@@ -402,7 +402,7 @@ Takeaway: Gold allows users to purchase items that increase damage. More gold me
 One advantage of only having two independent variables is we can make a 3D graph!
 This graph is essentially a combination of the previous two so no other conclusions will likely be drawn from it.
 
-## 3D Graph.
+## 3D Graph
 
 ```{r 3d plot}
 #| out-width: "200%"
