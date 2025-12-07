@@ -270,6 +270,28 @@ cat(
 )
 ```
 
+
+## 5 Assumptions
+
+1. ~~independence~~
+2. ~~linearity~~
+3. ~~no multicollinearity~~
+4. **normality of residuals**
+5. homoscedasticity
+
+## Normailty of Residuals
+
+Based on the test, both of our variables have a pretty low multicollinearity and are safe to use.
+
+To check for normality of residuals we can plot the multiple regression graph.
+Using `which = 2` prints a Q-Q Residuals graph or Quantile-Quantile plot of residuals.
+If this is straight diagnol it means our data follows a normal distribution.
+
+## Q-Q Residuals Graph
+```{r check for normality of residuals}
+plot(multiple_regression, which = 2)
+```
+
 ## Multiple Linear Regression Conclusion
 
 From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
