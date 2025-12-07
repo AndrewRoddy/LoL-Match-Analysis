@@ -255,6 +255,21 @@ multiple_regression <- lm(DmgDealt ~
 )
 
 ```
+
+## Variance Inflation Factor
+
+A VIF of 1 means there is no correlation. A VIF of greater than 1 means there is some coorelation. This only really matters if the VIF is greater than 5 as this suggests a high multicollinearity.
+```{r multicollinearity check}
+# Check for multicollinearity (if they are too dependent)
+# Values 1-2 are good
+# Our values are good
+values <- vif(multiple_regression)
+cat(
+  "Damage Taken:   ",    as.numeric(values["DmgTaken"]),
+  "\nTotal Gold:     ",      as.numeric(values["TotalGold"]), "\n"
+)
+```
+
 ## Multiple Linear Regression Conclusion
 
 From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
