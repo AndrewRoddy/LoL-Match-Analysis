@@ -46,7 +46,7 @@ print(names)
 ```
 
 Multiple regression to test if 
-```{r sort and cycle}
+```{r multiple regression run}
 
 library(ggplot2)
 library(scales)
@@ -60,9 +60,138 @@ multiple_regression <- lm(DmgDealt ~
     DmgTaken + TotalGold + MinionsKilled + TurretDmgDealt,
   data = match_stats
 )
+
+```
+
+```{r multicollinearity check}
+# Check for multicollinearity (if they are too dependent)
+# Values 1-2 are good
+# Our values are good
+values <- vif(multiple_regression)
+cat(
+  "Damage Taken:   ",    as.numeric(values["DmgTaken"]),
+  "\nTotal Gold:     ",      as.numeric(values["TotalGold"]), "\n"
+)
+```
+Values between 1 and two no multicollinearity for out test.
+
+```{r scatterplots to check for linearity taken vs dealt}
+
+ggplot(match_stats, aes(x = DmgTaken, y = DmgDealt)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Linearity: DmgDealt vs DmgTaken")
+
+```
+
+```{r scatterplots to check for linearity taken vs gold}
+
+ggplot(match_stats, aes(x = DmgTaken, y = TotalGold)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Linearity: DmgDealt vs TotalGold")
+
+```
+
+```{r scatterplots to check for linearity taken vs killed}
+
+ggplot(match_stats, aes(x = DmgTaken, y = MinionsKilled)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Linearity: DmgDealt vs MinionsKilled")
+
+```
+This one isn't linear
+
+```{r scatterplots to check for linearity taken vs turrets}
+
+ggplot(match_stats, aes(x = DmgTaken, y = TurretDmgDealt)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Linearity: DmgDealt vs TurretDmgDealt")
+
+```
+This one isn't linear either
+
+```{r scatterplots to check for linearity taken vs turrets}
+
+ggplot(match_stats, aes(x = DmgTaken, y = CurrentMasteryPoints)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Linearity: DmgDealt vs CurrentMasteryPoints")
+
+```
+This one also ins't linear either
+
+After checking we only have two variables that have linear relationships with DmgTaken.
+
+So we will do the multiple regression again with just those two variables.
+```{r multiple regression run}
+
+library(ggplot2)
+library(scales)
+library(car)
+
+# Generates subset of the data
+
+
+# make simple regression model
+multiple_regression <- lm(DmgDealt ~
+    DmgTaken + TotalGold,
+  data = match_stats
+)
+
+```
+
+
+Although it ap
+
+```{r multicollinearity check}
+# Check for multicollinearity (if they are too dependent)
+# Values 1-2 are good
+# Our values are good
+values <- vif(multiple_regression)
+cat(
+  "Damage Taken:   ",    as.numeric(values["DmgTaken"]),
+  "\nTotal Gold:     ",      as.numeric(values["TotalGold"]), "\n"
+)
+```
+
+To check for normality of residuals we can plot the multiple regression graph.
+Using `which = 2` prints a Q-Q Residuals graph or Quantile-Quantile plot of residuals.
+If this is straight diagnol it means our data follows a normal distribution.
+```{r check for normality of residuals}
+plot(multiple_regression, which = 2)
+```
+The graph not being straight diagonal is okay for our data through. This is alright because of the Central Limit Theorem. This basically means that if the sample size is greater than 30 the sample mean will be about normal. Luckily we have 150,000 samples which allows us to ignore this requirement.
+
+
+Tests for homoscedasticity
+```{r breusch pagan test}
+breusch_pagan_test <- ncvTest(multiple_regression)
+print(breusch_pagan_test)
+```
+
+Because our p value is so low we reject the idea that we have homoscedasticity which is a requirement for this test.
+This means our confidence intervals may be incorrect but our other visualizations should be fine.
+
+This is our p values before accounting for this.
+```{r prints the summary}
 # Print off if this matters or not
 summary(multiple_regression)
+```
 
+This is them while using a test that accounts for this. 
+```{r coefficient test}
+library(sandwich)
+library(lmtest)
+
+coeftest(multiple_regression, vcov = vcovHC(multiple_regression, type = "HC1"))
+```
+Luckily our p values are so small not having homoscedasticity doesn't have a large effect. This test calcuates and uses robust stardard errors which accounts for not having homoscedasticity. They ensure the standard errors are valid even when the residual variance is not constant.
+
+
+```{r prints the graphs}
 # Creates the variable plots
 #000000 point color
 #0.01 : 1 percent opacity
@@ -75,6 +204,9 @@ avPlots(
   xlim = c(-35000, 35000),
   ylim = c(-35000, 35000)
 )
+```
+
+```{r total gold}
 avPlots(
   multiple_regression,
   "TotalGold",
@@ -82,20 +214,71 @@ avPlots(
   xlim = c(-35000, 35000),
   ylim = c(-35000, 35000)
 )
-avPlots(
-  multiple_regression,
-  "MinionsKilled",
-  col = alpha("#000000", 0.04),
-  xlim = c(-35000, 35000),
-  ylim = c(-35000, 35000)
+```
+
+Makes a 3d graph of multiple regression.
+```{r 3d plot}
+library(plotly)
+
+# Makes the regression plane
+damage_taken_sequence <- seq(
+  min(match_stats$DmgTaken),
+  max(match_stats$DmgTaken),
+  length.out = 30 # 30 points for plane
 )
-avPlots(
-  multiple_regression,
-  "TurretDmgDealt",
-  col = alpha("#000000", 0.1),
-  xlim = c(-10, 10),
-  ylim = c(-35000, 35000)
+
+total_gold_sequence <- seq(
+  min(match_stats$TotalGold),
+  max(match_stats$TotalGold),
+  length.out = 30
 )
+
+# Grid of all combinations of damage taken and damage dealt
+grid <- expand.grid(
+  DmgTaken = damage_taken_sequence,
+  TotalGold = total_gold_sequence
+)
+
+# Predicts damage dealt for each point in the grid
+grid$PredictedDmg <- predict(multiple_regression, newdata = grid)
+
+# Makes empty plot point
+three_dimension_graph <- plot_ly()
+
+# Puts in the dots
+three_dimension_graph <- add_markers(
+  p = three_dimension_graph, # Adds onto the plot I already made
+  data = match_stats,
+  x = ~DmgTaken,
+  y = ~TotalGold,
+  z = ~DmgDealt,
+  marker = list(
+    color = "#ff922f", # Makes them orange
+    opacity = 0.05, # Makes the dots 5% opacity
+    size = 5 # Makes them a bit smaller
+  )
+)
+
+# Puts in the regression plane
+three_dimension_graph <- add_surface(
+  p = three_dimension_graph, # Adds onto the plot again
+  x = ~damage_taken_sequence,
+  y = ~total_gold_sequence,
+  z = matrix(
+    grid$PredictedDmg,
+    nrow = length(damage_taken_sequence),
+    ncol = length(total_gold_sequence)
+  )
+)
+
+# Removes the margins
+three_dimension_graph <- layout(
+  p = three_dimension_graph,
+  margin = list(l = 0, r = 0, b = 0, t = 0)
+)
+
+three_dimension_graph
+
 ```
 
 ```{r 2WayANOVA}
