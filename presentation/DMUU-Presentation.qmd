@@ -8,6 +8,18 @@ format:
         auto-stretch: true
 ---
 
+``` {r libraries}
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(car)
+library(sandwich)
+library(lmtest)
+library(plotly)
+library(reshape2)
+library(tidyr)
+```
+
 ## League of Legends Crash Course {.center}
 
 What is League of Legends?
@@ -102,8 +114,6 @@ col_count2 <- ncol(team_stats)
 cat("Team Data:\nThere are", row_count2, "rows.\n")
 cat("There are", col_count2, "columns.\n")
 
-library(dplyr)
-
 summoner_match <- read.csv("../data/other/SummonerMatchTbl.csv")
 match_stats <- match_stats |>
   left_join(summoner_match, by = c("SummonerMatchFk" = "SummonerMatchId"))
@@ -176,7 +186,6 @@ We will be doing a plot of Damage Dealt against : Damage Taken, Total Gold, and 
 ## Damage Dealt vs Damage Taken
 
 ```{r scatterplots to check for linearity taken vs dealt}
-library(ggplot2)
 ggplot(match_stats, aes(x = DmgTaken, y = DmgDealt)) +
   geom_point() +
   geom_smooth(method = "lm") +
@@ -257,10 +266,6 @@ We also need to check that there is no multicollinearity. This makes sure that o
 
 ```{r multiple linear regression run}
 
-library(ggplot2)
-library(scales)
-library(car)
-
 # make simple regression model
 multiple_regression <- lm(DmgDealt ~
     DmgTaken + TotalGold,
@@ -339,12 +344,6 @@ This is a summary of our multiple linear regression without accounting for homos
 summary(multiple_regression)
 ```
 
-
-```{r includes sandwich library}
-library(sandwich)
-library(lmtest)
-```
-
 ## Accounting for Homoscedasticity
 
 Using robust coefficients allows us to account for the lack of homoscedasticity. It ensures the standard errors are valid even when the residual variance is not constant.
@@ -420,8 +419,6 @@ This graph is essentially a combination of the previous two so no other conclusi
 ```{r 3d plot}
 #| out-width: "200%"
 #| out-height: "300%"
-
-library(plotly)
 
 # Makes the regression plane
 damage_taken_sequence <- seq(
@@ -565,10 +562,6 @@ vscore_deaths_plot
 
 ## Two Way Anova
 ```{r 2WayANOVA}
-library(ggplot2)
-library(dplyr)
-
-
 #Definition list for each rune name and ID
 rune_stones_lookup <- data.frame(
   rune = c(
@@ -767,11 +760,7 @@ Use K-Means clustering on specific match stats. We set k = 3 and expect to see t
 Features: Damage Dealt, Damage Taken, Total Gold, Kills, Deaths, Assists, Vision Score, Dragon Kills, and Baron Kills.
 
 ```{r Play Style Clustering}
-library(ggplot2)
-library(reshape2)
-library(dplyr)
-library(tidyr)
-library(scales)
+
 
 cluster_match_stats <- match_stats |>
   filter(Lane != "NONE")
