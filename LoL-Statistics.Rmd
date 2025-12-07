@@ -30,6 +30,10 @@ match_stats <- match_stats |>
 champions <- read.csv("data/keys/ChampionTbl.csv")
 match_stats <- match_stats |>
   left_join(champions, by = c("ChampionFk" = "ChampionId"))
+
+match_metadata <- read.csv("data/other/MatchTbl.csv")
+match_stats <- match_stats |>
+  left_join(match_metadata, by = c("MatchFk" = "MatchId"))
 ```
 
 ```{r clean}
@@ -41,6 +45,11 @@ match_stats[, c(
   "SummonerSpell1", "SummonerSpell2"
 )] <- list(NULL)
 
+nrow(match_stats)
+match_stats <- match_stats |>
+  filter(QueueType == "CLASSIC")
+
+nrow(match_stats)
 names <- colnames(match_stats)
 print(names)
 ```
@@ -410,14 +419,16 @@ for (lane in lanes){
 ```
 
 ```{r Team Logistic Regression}
+library(car)
 #Logistic Regression on a bunch of team Data
-blue_barons <- team_stats$BlueBaronKills
+blue_barons <- team_stats$BlueBaronKillvis
 blue_dragons <- team_stats$BlueDragonKills
 blue_heralds <- team_stats$BlueRiftHeraldKills
 blue_kills <- team_stats$BlueKills
+blue_towers <- team_stats$BlueTowerKills
 
 model <- glm(
-  BlueWin ~ blue_barons + blue_dragons + blue_heralds + blue_kills,
+  BlueWin ~ blue_barons + blue_dragons + blue_heralds + blue_kills + blue_towers,
   data = team_stats,
   family = binomial
 )
@@ -430,15 +441,17 @@ odd_mults
 
 #Probability Conversion = Mults/1+mult Can build predictor model off of this
 winrate <- 0.5 #50% chance of winning a game
-barons <- -2
-dragons <- -1
-heralds <- 1
-kills <- 5
+barons <- 1
+dragons <- 0
+heralds <- 0
+kills <- 0
+towers <- 1
 odds <- winrate / (1 - winrate) *
   odd_mults["blue_barons"]^barons *
   odd_mults["blue_dragons"]^dragons *
   odd_mults["blue_heralds"]^heralds *
-  odd_mults["blue_kills"]^kills
+  odd_mults["blue_kills"]^kills *
+  odd_mults["blue_towers"]^towers
 
 probability <- odds / (1 + odds)
 probability
@@ -561,7 +574,7 @@ cluster_role_percent <- cluster_match_stats |>
   select(cluster, LaneGroup, percent)
 
 # Make stacked bar chart
-stacked_bar_graph <- ggplot(cluster_role_percent, 
+stacked_bar_graph <- ggplot(cluster_role_percent,
                             aes(x = factor(cluster), y = percent,
                                 fill = LaneGroup)) +
   geom_bar(stat = "identity") +
@@ -591,81 +604,4 @@ cluster_role_percent_wide <- cluster_role_percent |>
   )
 
 cluster_role_percent_wide
-```
-
-```{r Build Optimizer}
-library(dplyr)
-library(tidyr)
-# Pull all data from matchstats table and find the optimum
-#   build and rune setup for each character.
-# Where the build appears more than once.
-# First Aggregate all builds that appear more than once
-# Using Ahri as a proof baseline ChampID:103
-library(dplyr)
-
-# Filter to only Ahri games where the
-#   Mode was not some alternate gamemode
-#   (Normal Summoners Rift Only)
-ahri_data <- match_stats |> filter(ChampionName == "Ahri")
-ahri_data <- ahri_data |> filter(Lane != "None" & PrimaryKeyStone != 0)
-ahri_wins <- sum(ahri_data$Win == 1)
-total_games <- length(ahri_data$Win)
-
-# First find if Ahris winrate is statistically signifigant
-prop.test(ahri_wins, total_games)
-
-# Prop Test shows us that Ahri's winrate is statistically different
-# from the baseline of 50% by a large margin over time
-
-test_table <- table(as.factor(ahri_data$PrimaryKeyStone), ahri_data$Win)
-chisq.test(test_table)
-# Ahris Winrate is signifigant between Keystones
-
-# Find highest winrate keystone with more than 5 games played
-ahri_keystone_summary <- ahri_data |>
-  group_by(PrimaryKeyStone) |>
-  summarise(
-    games = n(),
-    winrate = mean(Win)
-  ) |> 
-  filter(games >= 5) |>
-  arrange(desc(winrate))
-
-print(ahri_keystone_summary)
-
-# Is difference between them signifigant
-test_table <- table(ahri_data$PrimaryKeyStone, ahri_data$Win)
-fisher.test(test_table) #Alternative chi^2 because of some runes low sample size
-# May be innaccurate due to nature of game
-
-# Find best items on Ahri
-# First need to aggregate item counts
-unique_items <- unique(
-  unlist(
-    ahri_data[c(
-      "item1", "item2", "item3", "item4", "item5", "item6"
-    )]
-  )
-)
-
-ahri_item_data <- ahri_data |>
-  pivot_longer(
-    cols = c(
-      "item1", "item2", "item3", "item4", "item5", "item6"
-    ),
-    names_to = "slots",
-    values_to = "item"
-  )
-
-ahri_item_summary <- ahri_item_data |>
-  group_by(item) |>
-  summarise(
-    games = n(),
-    winrate = mean(Win)
-  ) |>
-  filter(games >= 25) |>
-  arrange(desc(winrate))
-
-# p rint(ahri_item_summary, n = nrow(ahri_item_summary))
-print(ahri_item_summary)
 ```
