@@ -108,6 +108,8 @@ summoner_match <- read.csv("../data/other/SummonerMatchTbl.csv")
 match_stats <- match_stats |>
   left_join(summoner_match, by = c("SummonerMatchFk" = "SummonerMatchId"))
 
+
+
 champions <- read.csv("../data/keys/ChampionTbl.csv")
 match_stats <- match_stats |>
 left_join(champions, by = c("ChampionFk" = "ChampionId"))
@@ -115,7 +117,6 @@ left_join(champions, by = c("ChampionFk" = "ChampionId"))
 
 
 ```{r clean}
-
 # Removes unimportant columns of data
 match_stats[, c(
   "item1", "item2", "item3", "item4", "item5", "item6",
@@ -123,6 +124,15 @@ match_stats[, c(
   "SecondarySlot1", "SecondarySlot2",
   "SummonerSpell1", "SummonerSpell2"
 )] <- list(NULL)
+
+nrow(match_stats)
+match_stats <- match_stats |>
+  filter(QueueType == "CLASSIC")
+
+nrow(match_stats)
+names <- colnames(match_stats)
+print(names)
+
 ```
 
 
@@ -413,7 +423,7 @@ library(plotly)
 # Makes the regression plane
 damage_taken_sequence <- seq(
   min(match_stats$DmgTaken),
-  max(match_stats$DmgTaken),
+  max(match_stats$DmgTaken),z
   length.out = 30 # 30 points for plane
 )
 
