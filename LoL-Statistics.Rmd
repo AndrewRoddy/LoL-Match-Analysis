@@ -1,5 +1,5 @@
 ---
-title: "LoL-Statistics"
+title: "League of Legends Match Data Analysis"
 author: "Andrew Roddy, Caleb Stanberry, Logan Senol"
 date: "2025-11-24"
 output: pdf_document
