@@ -159,6 +159,71 @@ All 150,000 matches in out game are done in different matches. These means the o
 To test linearity we will use `ggplot` to make scatter plots for each type of data.
 We will be doing a plot of Damage Dealt against : Damage Taken, Total Gold, and Minions Killed, Turret's Destroyed. We will then visually check for linearity.
 
+## Damage Dealt vs Damage Taken
+
+```{r scatterplots to check for linearity taken vs dealt}
+library(ggplot2)
+ggplot(match_stats, aes(x = DmgTaken, y = DmgDealt)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Damage Dealt vs Damage Taken")
+
+```
+
+Visually linear.
+
+## Damage Dealt vs Total Gold
+
+```{r scatterplots to check for linearity taken vs gold}
+
+ggplot(match_stats, aes(x = DmgTaken, y = TotalGold)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Damage Dealt vs Total Gold")
+
+```
+
+Visually linear.
+
+## Damage Dealt vs Minions Killed
+
+```{r scatterplots to check for linearity taken vs killed}
+
+ggplot(match_stats, aes(x = DmgTaken, y = MinionsKilled)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Damage Dealt vs Minions Killed")
+
+```
+
+Visually not linear
+
+## Damage Dealt vs Turrets Destroyed
+
+```{r scatterplots to check for linearity taken vs turrets}
+
+ggplot(match_stats, aes(x = DmgTaken, y = TurretDmgDealt)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Damage Dealt vs Turrets Destroyed")
+
+```
+
+Visually not linear
+
+## Damage Dealt vs Curret Mastery Points
+
+```{r scatterplots to check for linearity taken vs mastery points}
+
+ggplot(match_stats, aes(x = DmgTaken, y = CurrentMasteryPoints)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  labs(title = "Damage Dealt vs Current Mastery Points")
+
+```
+
+Visually not linear
+
 ## Multiple Linear Regression Conclusion
 
 From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
