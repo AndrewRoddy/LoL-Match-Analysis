@@ -143,6 +143,18 @@ The assumptions of multiple linear regression are:
 
 Before doing multiple linear regression we must check that all of these are true
 
+## Independence
+
+All 150,000 matches in out game are done in different matches. These means the outcome of the matches do not influence eachother. Because of this we know each data point is independent.
+
+## 5 Assumptions
+
+1. ~~independence~~
+2. **linearity**
+3. no multicollinearity
+4. normality of residuals
+5. homoscedasticity
+
 ## Multiple Linear Regression Conclusion
 
 From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
