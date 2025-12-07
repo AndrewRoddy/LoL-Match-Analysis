@@ -600,97 +600,55 @@ play_style_bar_graph
 cluster_comp_stacked_bar_graph
 ```
 
-## Chi Square Test - Build Optimizer
-    We run a Chi-Square test to see if the difference between Keystones is statistically signifigant. In other words if the choice of keystone matters in determining winrate.
-##
+## Team Playstyle Logistical Regression
+Using a Logistical Regression test we can determine the optimal playstyle for a team based on a variety of map objectives and team kills
 
-```{r Build Optimizer}
-library(dplyr)
-library(tidyr)
-# Pull all data from matchstats table and find the optimum
-#   build and rune setup for each character.
-# Where the build appears more than once.
-# First Aggregate all builds that appear more than once
-# Using Ahri as a proof baseline ChampID:103
-library(dplyr)
+## Team Playstyle Logistical Regression
+```{r Team Logistic Regression Function}
+#Logistic Regression on a bunch of team Data
+blue_barons <- team_stats$BlueBaronKillvis
+blue_dragons <- team_stats$BlueDragonKills
+blue_heralds <- team_stats$BlueRiftHeraldKills
+blue_kills <- team_stats$BlueKills
+blue_towers <- team_stats$BlueTowerKills
 
-# Filter to only Ahri games where the
-#   Mode was not some alternate gamemode
-#   (Normal Summoners Rift Only)
-ahri_data <- match_stats |> filter(ChampionName == "Ahri")
-ahri_data <- ahri_data |> filter(Lane != "None" & PrimaryKeyStone != 0)
-ahri_wins <- sum(ahri_data$Win == 1)
-total_games <- length(ahri_data$Win)
-
-# First find if Ahris winrate is statistically signifigant
-prop.test(ahri_wins, total_games)
-
-# Prop Test shows us that Ahri's winrate is statistically different
-# from the baseline of 50% by a large margin over time
-
-test_table <- table(as.factor(ahri_data$PrimaryKeyStone), ahri_data$Win)
-chisq.test(test_table)
-# Ahris Winrate is signifigant between Keystones
-
-# Find highest winrate keystone with more than 5 games played
-ahri_keystone_summary <- ahri_data |>
-  group_by(PrimaryKeyStone) |>
-  summarise(
-    games = n(),
-    winrate = mean(Win)
-  ) |> 
-  filter(games >= 5) |>
-  arrange(desc(winrate))
-
-print(ahri_keystone_summary)
-```
-
-
-
-## Fisher Test - Build Optimizer
-
-We also run a Fisher Test on the items to see if there is a statistically signifigant relation between items and winrate
-
-```{r risher test}
-# Is difference between them signifigant
-test_table <- table(ahri_data$item, ahri_data$Win)
-fisher.test(test_table) #Alternative chi^2 because of some items low sample size
-# May be innaccurate due to nature of game
-
-# Find best items on Ahri
-# First need to aggregate item counts
-unique_items <- unique(
-  unlist(
-    ahri_data[c(
-      "item1", "item2", "item3", "item4", "item5", "item6"
-    )]
-  )
+model <- glm(
+  BlueWin ~ blue_barons + blue_dragons + blue_heralds + blue_kills + blue_towers,
+  data = team_stats,
+  family = binomial
 )
 
-ahri_item_data <- ahri_data |>
-  pivot_longer(
-    cols = c(
-      "item1", "item2", "item3", "item4", "item5", "item6"
-    ),
-    names_to = "slots",
-    values_to = "item"
-  )
+summary(model)
 
-ahri_item_summary <- ahri_item_data |>
-  group_by(item) |>
-  summarise(
-    games = n(),
-    winrate = mean(Win)
-  ) |>
-  filter(games >= 25) |>
-  arrange(desc(winrate))
-
-# p rint(ahri_item_summary, n = nrow(ahri_item_summary))
-print(ahri_item_summary)
 ```
 
+## Team Playstyle Logistical Regression
+Looking at this summary we can see the individual effects each factor has on your chance of winning. This shows that towers are by far the most important thing to be playing for as a team with dragons closly behind. Notice the negative coeffiecnt for Barons and Rift Herald takes. This is a side effect of including Tower kills in the model. As the model holds the other factors constant and tests these two it sees a lowering of winrate (Very low data size). This makes sense as these objectives are highly related to taking a tower, and thus taking this objective and failing to secure a tower signify a larger issue with the game state.
 
+## Team Playstyle Logistical Regression
+```{r Team Logistic Regression Predictor}
+# Results give us a legit function,
+# need to convert to individual winrate multipliers
+odd_mults <- exp(coef(model)[-1])
+odd_mults
 
+#Probability Conversion = Mults/1+mult Can build predictor model off of this
+winrate <- 0.5 #50% chance of winning a game
+barons <- 1
+dragons <- 0
+heralds <- 0
+kills <- 0
+towers <- 1
+odds <- winrate / (1 - winrate) *
+  odd_mults["blue_barons"]^barons *
+  odd_mults["blue_dragons"]^dragons *
+  odd_mults["blue_heralds"]^heralds *
+  odd_mults["blue_kills"]^kills *
+  odd_mults["blue_towers"]^towers
+
+probability <- odds / (1 + odds)
+probability
+```
 ## Thank You! {.center}
 ![](img/league-logo.png){width="70%"}
 
