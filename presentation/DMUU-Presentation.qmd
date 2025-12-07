@@ -355,6 +355,121 @@ Now that our assumptions are correct. We can use partial regression to make inte
 5. ~~homoscedasticity~~
 
 
+## Partial Regression {.big-code}
+
+The next graphs will use Partial Regression.
+This uses the previous multiple linear regression claculations but holds all other variables constant.
+Holding all other variable's constant allows us to use a 2d graph to compare variables impact on eachother.
+
+
+## Partial Regression {.big-code}
+```{r partial regression dmgdealt vs dmgtaken }
+
+# Partial Regression
+avPlots(
+  multiple_regression,
+  "DmgTaken",
+  col = alpha("#ff922f", 0.04), # 4% opacity
+  xlim = c(-40000, 40000),
+  ylim = c(-40000, 40000)
+)
+```
+
+Compares Damage Dealt with Damage Taken.
+
+## Partial Regression {.big-code}
+Takeaway: Both having a positive relationship makes sense as hitting sombody usually results in getting hit back.
+
+
+
+## Partial Regression {.big-code}
+```{r partial regression dmgdealt vs totalgold }
+avPlots(
+  multiple_regression,
+  "TotalGold",
+  col = alpha("#ff922f", 0.04),
+  xlim = c(-40000, 40000),
+  ylim = c(-40000, 40000)
+)
+```
+
+Compares Damage Dealt with Total Gold aquired.
+
+## Partial Regression {.big-code}
+Takeaway: Gold allows users to purchase items that increase damage. More gold meaning more damage dealt makes sense.
+
+## 3D Multiple Linear Regression Graph
+One advantage of only having two independent variables is we can make a 3D graph!
+This graph is essentially a combination of the previous two so no other conclusions will likely be drawn from it.
+
+## 3D Graph.
+
+```{r 3d plot}
+#| out-width: "200%"
+#| out-height: "300%"
+
+library(plotly)
+
+# Makes the regression plane
+damage_taken_sequence <- seq(
+  min(match_stats$DmgTaken),
+  max(match_stats$DmgTaken),
+  length.out = 30 # 30 points for plane
+)
+
+total_gold_sequence <- seq(
+  min(match_stats$TotalGold),
+  max(match_stats$TotalGold),
+  length.out = 30
+)
+
+# Grid of all combinations of damage taken and damage dealt
+grid <- expand.grid(
+  DmgTaken = damage_taken_sequence,
+  TotalGold = total_gold_sequence
+)
+
+# Predicts damage dealt for each point in the grid
+grid$PredictedDmg <- predict(multiple_regression, newdata = grid)
+
+# Makes empty plot point
+three_dimension_graph <- plot_ly()
+
+# Puts in the dots
+three_dimension_graph <- add_markers(
+  p = three_dimension_graph, # Adds onto the plot I already made
+  data = match_stats,
+  x = ~DmgTaken,
+  y = ~TotalGold,
+  z = ~DmgDealt,
+  marker = list(
+    color = "#ff922f", # Makes them orange
+    opacity = 0.05, # Makes the dots 5% opacity
+    size = 5 # Makes them a bit smaller
+  )
+)
+
+# Puts in the regression plane
+three_dimension_graph <- add_surface(
+  p = three_dimension_graph, # Adds onto the plot again
+  x = ~damage_taken_sequence,
+  y = ~total_gold_sequence,
+  z = matrix(
+    grid$PredictedDmg,
+    nrow = length(damage_taken_sequence),
+    ncol = length(total_gold_sequence)
+  )
+)
+
+three_dimension_graph <- layout(
+  p = three_dimension_graph,
+  margin = list(l = 0, r = 0, b = 0, t = 0)
+)
+
+three_dimension_graph
+
+```
+
 ## Multiple Linear Regression Conclusion
 
 From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
