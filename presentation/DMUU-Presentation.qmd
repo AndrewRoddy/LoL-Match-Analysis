@@ -313,6 +313,48 @@ Homoscedasticity is same variance. It means that if the player had a low, medium
 breusch_pagan_test <- ncvTest(multiple_regression)
 print(breusch_pagan_test)
 ```
+
+Because our p value is so low we reject the idea that we have homoscedasticity which is a requirement for this test.
+This means our confidence intervals may be incorrect but our other visualizations should be fine.
+
+## Multiple Linear Regression Summary
+
+This is a summary of our multiple linear regression without accounting for homoscedasticity. The coorelation between damage dealt, damage taken, and total gold is statistically significant.
+
+```{r prints the summary}
+# Print off if this matters or not
+summary(multiple_regression)
+```
+
+
+```{r includes sandwich library}
+library(sandwich)
+library(lmtest)
+```
+
+## Accounting for Homoscedasticity
+
+Using robust coefficients allows us to account for the lack of homoscedasticity. It ensures the standard errors are valid even when the residual variance is not constant.
+```{r coefficient test}
+#| echo: true
+coeftest(multiple_regression, vcov = vcovHC(multiple_regression, type = "HC1"))
+```
+
+## Coefficient Test Conclusions
+
+Luckily our p values are so small not having homoscedasticity doesn't have a large effect. This very slightly changes our estimates and t values. This does not change our p-values though as they are so small.
+
+## 5 Assumptions
+
+Now that our assumptions are correct. We can use partial regression to make interesting graphs.
+
+1. ~~independence~~
+2. ~~linearity~~
+3. ~~no multicollinearity~~
+4. ~~normality of residuals~~
+5. ~~homoscedasticity~~
+
+
 ## Multiple Linear Regression Conclusion
 
 From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
