@@ -454,8 +454,10 @@ three_dimension_graph
 
 From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
 
-## Pearson Correlation Tests
+
+## Pearson Correlation Tests 
 This test measures the strength and direction of a linear relationship between two variables.
+
 
 **Assumptions**:  
 - Both variables are numerical
@@ -528,8 +530,13 @@ vscore_deaths_plot
 ## Vision Score vs Deaths Conlusion
 Although the correlation between Vision Score and Deaths is statistically significant (r = -0.035, p < 2e-16) due to the very large sample size, the correlation coefficient is negligible. Therefore, there is no practically meaningful linear relationship between Vision Score and Deaths.
 
+
+## Two Way Anova
+To determine the best runes to take per lane, we run a Two Way ANOVA test. By visualizing the results as a series of boxplots we can see the highest damage runes per lane and see which over and underperform. The high F values from our results show that what runes/keystones you and, and the lane you choose do have a significant effect on you damage dealt. Although it should be noted that the large amount of residuals show that damage is mostly determined by other factors in the game such as gold gained and individual differences in player skill.
+
 ## Two Way Anova
 ```{r 2WayANOVA}
+library(car)
 #Definition list for each rune name and ID
 rune_stones_lookup <- data.frame(
   rune = c(
@@ -603,9 +610,13 @@ filtered <- match_stats[
     match_stats$PrimaryKeyStone != "0" & match_stats$Lane != "NONE",
 ]
 
-# 2 Way ANOVA on Keystone and Role
 filtered$PrimaryKeyStone <- factor(filtered$PrimaryKeyStone)
 filtered$Lane <- factor(filtered$Lane)
+
+# Levenes Test
+levene_test <- leveneTest(DmgDealt ~ PrimaryKeyStone * Lane, data = filtered)
+
+# 2 Way ANOVA on Keystone and Role
 model <- aov(DmgDealt ~ PrimaryKeyStone * Lane, data = filtered)
 summary(model)
 
@@ -629,14 +640,14 @@ lane_stats <- TukeyHSD(model, "Lane")
 filtered$PrimaryKeyStone <- factor(filtered$PrimaryKeyStone)
 filtered$Lane <- factor(filtered$Lane)
 
-#Relate Keystone ID, Name, and Colors
+# Relate Keystone ID, Name, and Colors
 filtered <- filtered |>
   left_join(rune_stones_lookup, by = c("PrimaryKeyStone" = "ID"))
 
-#Reorganizes data to group by keystone order (Domination, Precision, etc.)
+# Reorganizes data to group by keystone order (Domination, Precision, etc.)
 filtered$rune <- factor(filtered$rune, levels = keystone_order)
 
-#Loop over lanes and create graph for each
+# Loop over lanes and create graph for each
 lanes <- unique(filtered$Lane)
 ```
 
@@ -786,7 +797,7 @@ cluster_role_percent <- cluster_match_stats |>
   select(cluster, LaneGroup, percent)
 
 # Make stacked bar chart
-cluster_comp_stacked_bar_graph <- ggplot(cluster_role_percent,
+cluster_comp_stacked_bar_graph <- ggplot(cluster_role_percent, 
                             aes(x = factor(cluster), y = percent,
                                 fill = LaneGroup)) +
   geom_bar(stat = "identity") +
@@ -869,7 +880,7 @@ summary(model)
 ```
 
 ## Team Playstyle Logistical Regression
-Looking at this summary we can see the individual effects each factor has on your chance of winning. This shows that towers are by far the most important thing to be playing for as a team with dragons closly behind. Notice the negative coeffiecnt for Barons and Rift Herald takes. This is a side effect of including Tower kills in the model. As the model holds the other factors constant and tests these two it sees a lowering of winrate (Very low data size). This makes sense as these objectives are highly related to taking a tower, and thus taking this objective and failing to secure a tower signify a larger issue with the game state.
+Looking at this summary we can see the individual effects each factor has on your chance of winning. This shows that towers are by far the most important thing to be playing for as a team with dragons closly behind. Notice the negative coeffiecnt for Barons and Rift Herald takes. This is a side effect of including Tower kills in the model. As the model holds the other factors constant and tests these two it sees a lowering of winrate (Very low data size). This makes sense as these objectives are highly related to taking a tower, and thus taking this objective and failing to secure a tower signify a larger issue with the game state. Using this data we can create a basic win-rate predictor by feeding stats in and getting a value out.
 
 ## Team Playstyle Logistical Regression
 ```{r Team Logistic Regression Predictor}
@@ -895,3 +906,4 @@ odds <- winrate / (1 - winrate) *
 probability <- odds / (1 + odds)
 probability
 ```
+## Thank You! 
