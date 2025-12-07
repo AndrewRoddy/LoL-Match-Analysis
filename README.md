@@ -6,4 +6,5 @@ Analyzing 150,000 League of Legends matches using R.
 
 # Installation
 R : To run the R code install R studio and open the `.Rmd` file
-Presentation : run `presentation/DMUU-Presentation.html` to view the presentation
+
+Quarto Presentation : run `presentation/DMUU-Presentation.html` to view the presentation
