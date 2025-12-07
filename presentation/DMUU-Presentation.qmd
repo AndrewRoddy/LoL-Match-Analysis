@@ -496,9 +496,9 @@ This test measures the strength and direction of a linear relationship between t
 <br>
 
 **Assumptions**:  
-- Both variables are numerical
-- Normal distributions for both variables
-- Approximately linear relationship
+- Both variables are numerical  
+- Normal distributions for both variables  
+- Approximately linear relationship  
 
 ```{r Pearson Correlation Tests}
 match_stats <- read.csv("../data/MatchStatsTbl.csv")
