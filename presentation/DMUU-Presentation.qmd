@@ -915,7 +915,7 @@ summary(model)
 ## Team Playstyle Logistical Regression
 Looking at this summary we can see the individual effects each factor has on your chance of winning. This shows that towers are by far the most important thing to be playing for as a team with dragons closly behind. Notice the negative coeffiecnt for Barons and Rift Herald takes. This is a side effect of including Tower kills in the model. This makes sense as these objectives are highly related to taking a tower, and thus taking this objective and failing to secure a tower signify a larger issue with the game state. Using this data we can create a basic win-rate predictor by feeding stats in and getting a value out.
 
-## Team Playstyle Logistical Regression {.big-code}
+## Team Playstyle Logistical Regression
 ```{r Team Logistic Regression Predictor}
 # Results give us a legit function,
 # need to convert to individual winrate multipliers
