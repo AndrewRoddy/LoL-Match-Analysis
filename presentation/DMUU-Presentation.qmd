@@ -914,7 +914,7 @@ summary(model)
 ## Team Playstyle Logistical Regression
 Looking at this summary we can see the individual effects each factor has on your chance of winning. Based on these coefficents we can assign a value to each map objective and see how valuable each on is in terms of increasing your winrate. This shows that it is by far more efficent to play for any of the objectives over kills, with dragons being the most valuable. Using these coefficents we can create a simple winrate predictor by feeding a team stat line in.
 
-## Team Playstyle Logistical Regression {.big-code}
+## Team Playstyle Logistical Regression
 ```{r Team Logistic Regression Predictor}
 # Results give us a legit function,
 # need to convert to individual winrate multipliers
