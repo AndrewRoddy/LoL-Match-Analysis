@@ -561,7 +561,7 @@ Although the correlation between Vision Score and Deaths is statistically signif
 
 
 ## Two Way Anova
-To determine the best runes to take per lane, we run a Two Way ANOVA test. By visualizing the results as a series of boxplots we can see the highest damage runes per lane and see which over and underperform. The high F values from our results show that what runes/keystones you and, and the lane you choose do have a significant effect on you damage dealt. Although it should be noted that the large amount of residuals show that damage is mostly determined by other factors in the game such as gold gained and individual differences in player skill.
+Another important part of the game is Runes, a series of passive abilites you get to choose before a match starts. To determine the best runes to take per lane, we run a Two Way ANOVA test. By visualizing the results as a series of boxplots we can visulize the mean average damage per rune, which shows us which over or under perform. The F values show us how important each metric is against the random noise of the data. Although it should be noted that the large amount of residuals show that damage is mostly determined by other factors in the game such as gold gained and individual differences in player skill.
 
 ## Two Way Anova
 ```{r 2WayANOVA}
@@ -887,7 +887,7 @@ In conclusion, k-means was not able to separate Laner and Support players into d
 - Laner is composed of three less distinct roles (Top, Middle, Bottom) that appear in each match. Therefore, Laner may have a higher variance or density, which may explain why the Laners were split into 2 clusters. Increasing K to 4 or 5 may resolve this issue.
 
 ## Team Playstyle Logistical Regression
-Using a Logistical Regression test we can determine the optimal playstyle for a team based on a variety of map objectives and team kills
+Using a Logistical Regression test we can determine the optimal playstyle for a team based on a variety of map objectives and team kills.
 
 ## Team Playstyle Logistical Regression
 ```{r Team Logistic Regression Function}
@@ -896,10 +896,9 @@ blue_barons <- team_stats$BlueBaronKills
 blue_dragons <- team_stats$BlueDragonKills
 blue_heralds <- team_stats$BlueRiftHeraldKills
 blue_kills <- team_stats$BlueKills
-blue_towers <- team_stats$BlueTowerKills
 
 model <- glm(
-  BlueWin ~ blue_barons + blue_dragons + blue_heralds + blue_kills + blue_towers,
+  BlueWin ~ blue_barons + blue_dragons + blue_heralds + blue_kills,
   data = team_stats,
   family = binomial
 )
@@ -909,7 +908,7 @@ summary(model)
 ```
 
 ## Team Playstyle Logistical Regression
-Looking at this summary we can see the individual effects each factor has on your chance of winning. This shows that towers are by far the most important thing to be playing for as a team with dragons closly behind. Notice the negative coeffiecnt for Barons and Rift Herald takes. This is a side effect of including Tower kills in the model. As the model holds the other factors constant and tests these two it sees a lowering of winrate (Very low data size). This makes sense as these objectives are highly related to taking a tower, and thus taking this objective and failing to secure a tower signify a larger issue with the game state. Using this data we can create a basic win-rate predictor by feeding stats in and getting a value out.
+Looking at this summary we can see the individual effects each factor has on your chance of winning. Based on these coefficents we can assign a value to each map objective and see how valuable each on is in terms of increasing your winrate. This shows that it is by far more efficent to play for any of the objectives over kills, with dragons being the most valuable. Using these coefficents we can create a simple winrate predictor by feeding a team stat line in.
 
 ## Team Playstyle Logistical Regression
 ```{r Team Logistic Regression Predictor}
@@ -921,16 +920,14 @@ odd_mults
 #Probability Conversion = Mults/1+mult Can build predictor model off of this
 winrate <- 0.5 #50% chance of winning a game
 barons <- 1
-dragons <- 0
-heralds <- 0
-kills <- 0
-towers <- 1
+dragons <- 2
+heralds <- 1
+kills <- 3
 odds <- winrate / (1 - winrate) *
   odd_mults["blue_barons"]^barons *
   odd_mults["blue_dragons"]^dragons *
   odd_mults["blue_heralds"]^heralds *
-  odd_mults["blue_kills"]^kills *
-  odd_mults["blue_towers"]^towers
+  odd_mults["blue_kills"]^kills
 
 probability <- odds / (1 + odds)
 probability
