@@ -169,7 +169,7 @@ Before doing multiple linear regression we must check that all of these are true
 
 ## Independence
 
-All 150,000 matches in out game are done in different matches. These means the outcome of the matches do not influence eachother. Because of this we know each data point is independent.
+All 150,000 matches in out game are done in different matches. This means the outcome of the matches do not influence eachother. Because of this we know each data point is independent.
 
 ## 5 Assumptions
 
@@ -199,7 +199,7 @@ Visually linear.
 
 ```{r scatterplots to check for linearity taken vs gold}
 
-ggplot(match_stats, aes(x = DmgTaken, y = TotalGold)) +
+ggplot(match_stats, aes(x = TotalGold, y = DmgDealt)) +
   geom_point() +
   geom_smooth(method = "lm") +
   labs(title = "Damage Dealt vs Total Gold")
@@ -212,20 +212,20 @@ Visually linear.
 
 ```{r scatterplots to check for linearity taken vs killed}
 
-ggplot(match_stats, aes(x = DmgTaken, y = MinionsKilled)) +
+ggplot(match_stats, aes(x = MinionsKilled, y = DmgDealt)) +
   geom_point() +
   geom_smooth(method = "lm") +
   labs(title = "Damage Dealt vs Minions Killed")
 
 ```
 
-Visually not linear
+Visually somewhat linear
 
 ## Damage Dealt vs Turrets Destroyed
 
 ```{r scatterplots to check for linearity taken vs turrets}
 
-ggplot(match_stats, aes(x = DmgTaken, y = TurretDmgDealt)) +
+ggplot(match_stats, aes(x = TurretDmgDealt, y = DmgDealt)) +
   geom_point() +
   geom_smooth(method = "lm") +
   labs(title = "Damage Dealt vs Turrets Destroyed")
@@ -234,11 +234,11 @@ ggplot(match_stats, aes(x = DmgTaken, y = TurretDmgDealt)) +
 
 Visually not linear
 
-## Damage Dealt vs Curret Mastery Points
+## Damage Dealt vs Current Mastery
 
 ```{r scatterplots to check for linearity taken vs mastery points}
 
-ggplot(match_stats, aes(x = DmgTaken, y = CurrentMasteryPoints)) +
+ggplot(match_stats, aes(x =CurrentMasteryPoints , y =  DmgDealt)) +
   geom_point() +
   geom_smooth(method = "lm") +
   labs(title = "Damage Dealt vs Current Mastery Points")
@@ -248,7 +248,7 @@ Visually not linear
 
 ## Changing the Test
 
-Because we can only use linear relationships between variables we will have to change what we test.
+Because multiple predictors did not show a linear relationship with damage dealt, we simplified the model to keep only the visually linear predictors.
 
 Because of this we will only be testing the dependent variable of Damage Dealt against the independent variables of Damage Taken and Total Gold.
 
@@ -262,7 +262,7 @@ Because of this we will only be testing the dependent variable of Damage Dealt a
 
 ## Checking for no multicollinearity {.big-code}
 
-We also need to check that there is no multicollinearity. This makes sure that our two independent variables are not too highly coorelated. This would be like if every time we took one damage we got one gold. This would make the individual coefficients unreliable. To test for this we need to calculate the Variance Inflation Factor.
+We also need to check that there is no multicollinearity. This makes sure that our two independent variables are not too highly correlated. This would be like if every time we took one damage we got one gold. This would make the individual coefficients unreliable. To test for this we need to calculate the Variance Inflation Factor.
 
 ```{r multiple linear regression run}
 
@@ -276,7 +276,7 @@ multiple_regression <- lm(DmgDealt ~
 
 ## Variance Inflation Factor {.big-code}
 
-A VIF of 1 means there is no correlation. A VIF of greater than 1 means there is some coorelation. This only really matters if the VIF is greater than 5 as this suggests a high multicollinearity.
+A VIF of 1 means there is no correlation with other predictors. This only really matters if the VIF is greater than 5 as this suggests a high multicollinearity. Based on the test, both of our variables have a pretty low multicollinearity and are safe to use.
 ```{r multicollinearity check}
 # Check for multicollinearity (if they are too dependent)
 # Values 1-2 are good
@@ -297,13 +297,11 @@ cat(
 4. **normality of residuals**
 5. homoscedasticity
 
-## Normailty of Residuals
+## Normality of Residuals
 
-Based on the test, both of our variables have a pretty low multicollinearity and are safe to use.
-
-To check for normality of residuals we can plot the multiple regression graph.
+To check for normality of residuals we use a Q-Q plot of the residuals.
 Using `which = 2` prints a Q-Q Residuals graph or Quantile-Quantile plot of residuals.
-If this is straight diagnol it means our data follows a normal distribution.
+If this is straight diagonal it means the residuals are about normal.
 
 ## Q-Q Residuals Graph
 ```{r check for normality of residuals}
@@ -311,7 +309,7 @@ plot(multiple_regression, which = 2)
 ```
 
 ## Q-Q Residuals Graph Takeaway
-The graph not being straight diagonal is okay for our data through. This is alright because of the Central Limit Theorem. This basically means that if the sample size is greater than 30 the sample mean will be about normal. Luckily we have 150,000 samples which allows us to ignore this requirement.
+The graph not being straight diagonal is okay for our data through. This is alright because of our large number of 150,000 samples and the Central Limit Theorem. The coefficient values produced by the linear regression become approximately normaly distributed because of the large dataset.
 
 ## 5 Assumptions
 
@@ -327,8 +325,7 @@ Homoscedasticity is same variance. It means that if the player had a low, medium
 
 ## Breusch-Pagan Test {.big-code}
 
-Because our p value is so low we reject the idea that we have homoscedasticity which is a requirement for this test.
-This means our confidence intervals may be incorrect but our other visualizations should be fine.
+Because our p value is so low we reject the idea that we have homoscedasticity which is a requirement for for correct p values during multiple regression. This is okay as we can use a different test to find the p-values.
 
 ```{r breusch pagan test}
 breusch_pagan_test <- ncvTest(multiple_regression)
@@ -337,7 +334,7 @@ print(breusch_pagan_test)
 
 ## Multiple Linear Regression Summary
 
-This is a summary of our multiple linear regression without accounting for homoscedasticity. The coorelation between damage dealt, damage taken, and total gold is statistically significant.
+This is a summary of our multiple linear regression without accounting for heteroscedasticity. The correlation between damage dealt, damage taken, and total gold is statistically significant.
 
 ```{r prints the summary}
 # Print off if this matters or not
@@ -370,7 +367,7 @@ Now that our assumptions are correct. We can use partial regression to make inte
 ## Partial Regression {.big-code}
 
 The next graphs will use Partial Regression.
-This uses the previous multiple linear regression claculations but holds all other variables constant.
+This uses the previous multiple linear regression calculations but holds all other variables constant.
 Holding all other variable's constant allows us to use a 2d graph to compare variables impact on eachother.
 
 
@@ -489,7 +486,7 @@ This is only rendering the first 15,000 points. It still uses the regression of 
 
 ## Multiple Linear Regression Conclusion
 
-From this test we can confidently conclude that damage taken and total gold can significantly predict the amount of damage a player has dealt.
+From this test we can confidently conclude that damage taken and total gold are hightly significant predictors of the damage a player has dealt. Players who take more damage and accumulate more gold deal reliably higher damage. This is as expected from the core game mechanics.
 
 ## Pearson Correlation Tests {.big-code}
 This test measures the strength and direction of a linear relationship between two variables.
